@@ -1,0 +1,29 @@
+node_modules
+.next
+dist
+build
+out
+coverage
+.turbo
+.vercel
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+
+# Author working documents (not for distribution)
+*.pdf
+*.docx
+
+# Python sidecar
+services/python/.venv
+services/python/__pycache__
+services/python/**/__pycache__
+services/python/*.egg-info
+services/python/.pytest_cache
+
+# Playwright
+test-results
+playwright-report
+blob-report

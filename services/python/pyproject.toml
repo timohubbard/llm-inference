@@ -1,0 +1,27 @@
+[project]
+name = "llmi-sidecar"
+version = "0.1.0"
+description = "Python sidecar for the LLM Inference Tool — traditional text methods and regression harness."
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.115.3",
+  "uvicorn[standard]==0.32.0",
+  "pydantic==2.9.2",
+  "numpy==2.1.2",
+  "pandas==2.2.3",
+  "scipy==1.14.1",
+  "scikit-learn==1.5.2",
+  "statsmodels==0.14.4",
+  "regex==2024.9.11",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.3.3",
+  "httpx==0.27.2",
+  "ruff==0.7.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

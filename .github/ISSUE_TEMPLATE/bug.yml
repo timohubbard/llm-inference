@@ -1,0 +1,28 @@
+name: Bug
+description: Report a defect in the tool
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: input
+    id: repro-steps
+    attributes:
+      label: Steps to reproduce
+  - type: input
+    id: provider
+    attributes:
+      label: LLM provider (if relevant)
+  - type: input
+    id: commit
+    attributes:
+      label: Commit or release

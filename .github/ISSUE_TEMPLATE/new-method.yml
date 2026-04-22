@@ -1,0 +1,31 @@
+name: New traditional method proposal
+description: Propose a new TraditionalMethod plugin (dictionary, topic model, embedding similarity, etc.)
+labels: ["enhancement", "method"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Method name
+    validations:
+      required: true
+  - type: textarea
+    id: citation
+    attributes:
+      label: Primary citation(s)
+      description: Published source this method originates from.
+    validations:
+      required: true
+  - type: textarea
+    id: inputs-outputs
+    attributes:
+      label: Inputs and outputs
+      description: Input format (per-document? corpus-level?), returned fields, any parameters.
+    validations:
+      required: true
+  - type: textarea
+    id: reproducibility
+    attributes:
+      label: Reproducibility notes
+      description: Version pinning requirements, randomness, external model files, licensing.
+    validations:
+      required: true

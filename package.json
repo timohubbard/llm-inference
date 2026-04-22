@@ -1,0 +1,26 @@
+{
+  "name": "llm-inference-tool",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Operationalizes the 6-step LLM-inference framework for quantitative textual research in management studies.",
+  "license": "MIT",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @llmi/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "e2e": "pnpm --filter @llmi/web e2e",
+    "db:generate": "pnpm --filter @llmi/web db:generate",
+    "db:migrate": "pnpm --filter @llmi/web db:migrate",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  }
+}
