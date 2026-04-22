@@ -1,5 +1,5 @@
 # Pinned digest — update via `docker pull python:3.12-slim && docker inspect ... | jq '.[0].Id'`
-FROM python:3.12-slim@sha256:1af27f5a4d67a3f8de88a8e1d53fd11d4f7e91b04bbe23b67b2fa27e9f2e8db2
+FROM python:3.12-slim@sha256:4386a385d81dba9f72ed72a6fe4237755d7f5440c84b417650f38336bbc43117
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
