@@ -1,13 +1,17 @@
 """POST /api/python/regression — OLS/logit regression.
 
-Implemented with numpy + scipy.stats; no statsmodels/patsy dependency so
-the function fits inside Vercel's serverless size limits.
+Implemented with numpy + stdlib math; no scipy/statsmodels/patsy dependency
+so the function fits inside Vercel's serverless size limits.
 """
 
 import json
+import sys
 from http.server import BaseHTTPRequestHandler
+from pathlib import Path
 
-from _shared import SIDECAR_VERSION, REQUIREMENTS_HASH, fit_regression
+sys.path.insert(0, str(Path(__file__).parent))
+
+from _shared import SIDECAR_VERSION, REQUIREMENTS_HASH, fit_regression  # noqa: E402
 
 
 class handler(BaseHTTPRequestHandler):
