@@ -16,6 +16,7 @@ import {
   type LlmScoreRow,
 } from "@/lib/llm-runs";
 import { markSessionStepDone } from "@/lib/steps";
+import { reviewerCoversProvider, useReviewerSession } from "@/lib/use-reviewer-session";
 
 interface Construct {
   id: string;
@@ -95,6 +96,7 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
   const [canonicalRunId, setCanonicalRunIdState] = useState<string | null>(null);
   const [totalCostEst, setTotalCostEst] = useState<number | null>(null);
   const [globalErr, setGlobalErr] = useState<string | null>(null);
+  const reviewer = useReviewerSession();
 
   useEffect(() => {
     const raw = sessionStorage.getItem(`corpus:${projectId}`);
@@ -495,9 +497,21 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
         </label>
 
         <div className={`mt-3 grid gap-4 ${useSecondModel ? "md:grid-cols-2" : ""}`}>
-          <ModelSlot label="Model A" slot={slotA} onChange={setSlotA} onLoadModels={() => listModels("A")} />
+          <ModelSlot
+            label="Model A"
+            slot={slotA}
+            onChange={setSlotA}
+            onLoadModels={() => listModels("A")}
+            reviewerCovers={reviewerCoversProvider(reviewer, slotA.provider)}
+          />
           {useSecondModel ? (
-            <ModelSlot label="Model B" slot={slotB} onChange={setSlotB} onLoadModels={() => listModels("B")} />
+            <ModelSlot
+              label="Model B"
+              slot={slotB}
+              onChange={setSlotB}
+              onLoadModels={() => listModels("B")}
+              reviewerCovers={reviewerCoversProvider(reviewer, slotB.provider)}
+            />
           ) : null}
         </div>
 
@@ -598,16 +612,18 @@ function ModelSlot({
   slot,
   onChange,
   onLoadModels,
+  reviewerCovers,
 }: {
   label: string;
   slot: ModelRunState;
   onChange: (s: ModelRunState) => void;
   onLoadModels: () => void;
+  reviewerCovers: boolean;
 }) {
   return (
     <div className="rounded border p-3">
       <div className="text-xs font-medium uppercase text-muted-foreground">{label}</div>
-      <div className="mt-2 grid grid-cols-2 gap-2">
+      <div className={`mt-2 grid gap-2 ${reviewerCovers ? "grid-cols-1" : "grid-cols-2"}`}>
         <label className="text-sm">
           Provider
           <select
@@ -620,16 +636,23 @@ function ModelSlot({
             <option value="google">Google Gemini</option>
           </select>
         </label>
-        <label className="text-sm">
-          API key
-          <input
-            type="password"
-            value={slot.apiKey}
-            onChange={(e) => onChange({ ...slot, apiKey: e.target.value })}
-            className="mt-1 w-full rounded border px-2 py-1"
-          />
-        </label>
+        {reviewerCovers ? null : (
+          <label className="text-sm">
+            API key
+            <input
+              type="password"
+              value={slot.apiKey}
+              onChange={(e) => onChange({ ...slot, apiKey: e.target.value })}
+              className="mt-1 w-full rounded border px-2 py-1"
+            />
+          </label>
+        )}
       </div>
+      {reviewerCovers ? (
+        <p className="mt-2 text-xs text-green-700 dark:text-green-400">
+          ✓ Reviewer session — using the server-side {slot.provider} key (subject to the session spend cap).
+        </p>
+      ) : null}
       <button onClick={onLoadModels} className="mt-2 rounded border px-3 py-1 text-xs">
         Load models
       </button>

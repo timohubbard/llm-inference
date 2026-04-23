@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { markSessionStepDone } from "@/lib/steps";
 import { StepCompleteBanner } from "@/components/step-complete-banner";
+import { reviewerCoversProvider, useReviewerSession } from "@/lib/use-reviewer-session";
 
 interface Construct {
   id: string;
@@ -39,6 +40,8 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
   const [notes, setNotes] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const reviewer = useReviewerSession();
+  const reviewerCovers = reviewerCoversProvider(reviewer, provider);
 
   useEffect(() => {
     const raw = sessionStorage.getItem(`corpus:${projectId}`);
@@ -162,15 +165,24 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
               className="mt-1 w-full rounded border px-2 py-1"
             />
           </label>
-          <label className="text-sm">
-            API key (blank = reviewer session)
-            <input
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              className="mt-1 w-full rounded border px-2 py-1"
-            />
-          </label>
+          {reviewerCovers ? (
+            <div className="text-sm">
+              <div className="text-xs font-medium uppercase text-muted-foreground">API key</div>
+              <p className="mt-1 rounded border border-green-500/40 bg-green-50/50 p-2 text-xs text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                ✓ Reviewer session — using the server-side {provider} key.
+              </p>
+            </div>
+          ) : (
+            <label className="text-sm">
+              API key
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="mt-1 w-full rounded border px-2 py-1"
+              />
+            </label>
+          )}
           <label className="text-sm">
             Outcome variable (optional)
             <input

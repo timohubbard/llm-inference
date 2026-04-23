@@ -21,13 +21,26 @@ function getRedis(): Redis | null {
   return redisCache;
 }
 
+export type ReviewerProviderId = "anthropic" | "openai" | "google";
+
 export function reviewerConfig() {
+  const apiKeys: Record<ReviewerProviderId, string> = {
+    anthropic: process.env.REVIEWER_ANTHROPIC_KEY ?? "",
+    openai: process.env.REVIEWER_OPENAI_KEY ?? "",
+    google: process.env.REVIEWER_GOOGLE_KEY ?? "",
+  };
   return {
     password: process.env.REVIEWER_PASSWORD ?? "",
-    apiKey: process.env.REVIEWER_ANTHROPIC_KEY ?? "",
+    apiKeys,
+    availableProviders: (Object.keys(apiKeys) as ReviewerProviderId[]).filter((p) => apiKeys[p]),
     capUsd: Number(process.env.REVIEWER_SPEND_CAP_USD ?? "2"),
     ttlSeconds: Number(process.env.REVIEWER_SESSION_TTL_DAYS ?? "7") * 24 * 60 * 60,
   };
+}
+
+export function getReviewerKey(provider: ReviewerProviderId): string | null {
+  const key = reviewerConfig().apiKeys[provider];
+  return key || null;
 }
 
 export async function startReviewerSession(userId: string): Promise<string> {
@@ -54,7 +67,13 @@ export async function endReviewerSession(userId: string): Promise<void> {
 
 export async function currentReviewerSession(): Promise<
   | { active: false }
-  | { active: true; sessionId: string; spentUsd: number; capUsd: number }
+  | {
+      active: true;
+      sessionId: string;
+      spentUsd: number;
+      capUsd: number;
+      availableProviders: ReviewerProviderId[];
+    }
 > {
   const { userId, sessionClaims } = await auth();
   if (!userId) return { active: false };
@@ -63,12 +82,18 @@ export async function currentReviewerSession(): Promise<
     return { active: false };
   }
   const sessionId = meta[SESSION_ID_KEY];
-  const cap = reviewerConfig().capUsd;
+  const cfg = reviewerConfig();
   const redis = getRedis();
   const cents = redis
     ? Number((await redis.get<number>(`reviewer:${sessionId}:spent_cents`)) ?? 0)
     : 0;
-  return { active: true, sessionId, spentUsd: cents / 100, capUsd: cap };
+  return {
+    active: true,
+    sessionId,
+    spentUsd: cents / 100,
+    capUsd: cfg.capUsd,
+    availableProviders: cfg.availableProviders,
+  };
 }
 
 export async function reserveReviewerSpend(sessionId: string, estCostUsd: number): Promise<void> {

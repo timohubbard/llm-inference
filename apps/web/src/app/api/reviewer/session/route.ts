@@ -26,15 +26,22 @@ export async function POST(req: Request) {
   if (parsed.data.password !== cfg.password) {
     return NextResponse.json({ error: "Incorrect password." }, { status: 401 });
   }
-  if (!cfg.apiKey) {
+  if (cfg.availableProviders.length === 0) {
     return NextResponse.json(
-      { error: "Reviewer Anthropic key is not set on this deployment." },
+      {
+        error:
+          "No reviewer provider keys are configured on this deployment (set REVIEWER_ANTHROPIC_KEY, REVIEWER_OPENAI_KEY, and/or REVIEWER_GOOGLE_KEY).",
+      },
       { status: 503 },
     );
   }
 
   const sessionId = await startReviewerSession(userId);
-  return NextResponse.json({ sessionId, capUsd: cfg.capUsd });
+  return NextResponse.json({
+    sessionId,
+    capUsd: cfg.capUsd,
+    availableProviders: cfg.availableProviders,
+  });
 }
 
 export async function DELETE() {

@@ -33,9 +33,11 @@ export default function ReviewerPage() {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
       <h1 className="text-2xl font-semibold">Reviewer access</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        If you&apos;re a JMS reviewer evaluating this tool, enter the access password to unlock a capped
-        Anthropic key (~$2 per session). This lets you exercise the full workflow without bringing
-        your own key.
+        If you&apos;re a JMS reviewer evaluating this tool, enter the access password to unlock
+        server-side API keys for any providers the deployment has configured (Anthropic, OpenAI,
+        and/or Google). A per-session spend cap (default ~$2) applies across all providers. This
+        lets you exercise the full workflow — including multi-model comparison — without bringing
+        your own keys.
       </p>
       <form onSubmit={submit} className="mt-6 space-y-3">
         <input
