@@ -33,8 +33,9 @@ export const reproducibilityManifestSchema = z.object({
     summary: z.unknown(),
   }).nullable(),
   pythonSidecar: z.object({
-    imageDigest: z.string().nullable(),
+    imageDigest: z.string().nullable().optional(),
     version: z.string().nullable(),
+    requirementsHash: z.string().nullable().optional(),
   }).optional(),
 });
 

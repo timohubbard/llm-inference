@@ -12,10 +12,10 @@ and transparency take precedence over feature velocity.
 ## PR checklist
 
 - [ ] `pnpm typecheck` and `pnpm test` pass locally.
-- [ ] `pytest` passes in `services/python`.
+- [ ] `pytest api/python/tests` passes from `apps/web`.
 - [ ] If you added a new LLM provider, it implements the full `LlmProvider` interface, including `listModels` and
       `estimateCost`, and includes a unit test with a mocked client.
-- [ ] If you added a new traditional method, it lives in `methods/` (or `services/python/app/dictionaries/` for M1)
+- [ ] If you added a new traditional method, it lives in `methods/` (or `apps/web/api/python/_shared.py` for M1)
       and is exercised by an integration test on a small seeded corpus.
 - [ ] Manifest fields updated in `packages/shared/src/schemas/manifest.ts` if your change affects reproducibility.
 - [ ] CHANGELOG updated.
@@ -30,7 +30,7 @@ and transparency take precedence over feature velocity.
 
 ## Adding a new `TraditionalMethod`
 
-For M1 this is still concentrated in `services/python/app/dictionaries/`. From M3 onward, new methods should drop into
+For M1 this is still concentrated in `apps/web/api/python/_shared.py`. From M3 onward, new methods should drop into
 `methods/<name>/` with a manifest describing inputs, outputs, and reproducibility fields. A method is expected to:
 
 - Be deterministic given the same inputs.

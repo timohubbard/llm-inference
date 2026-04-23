@@ -20,11 +20,14 @@ export async function POST(req: Request) {
   }
 
   try {
-    const result = await scoreDictionary({
-      method: parsed.data.method,
-      dictionary: parsed.data.dictionary,
-      documents: parsed.data.documents,
-    });
+    const result = await scoreDictionary(
+      {
+        method: parsed.data.method,
+        dictionary: parsed.data.dictionary,
+        documents: parsed.data.documents,
+      },
+      req,
+    );
     const scores = result.scores.map((s) => ({
       id: s.id,
       score:
@@ -33,10 +36,15 @@ export async function POST(req: Request) {
           ? (s.categoryCounts.positive - s.categoryCounts.negative) / Math.max(1, s.tokenCount)
           : 0),
     }));
-    return NextResponse.json({ scores, summary: result.summary, sidecar: {
-      version: result.sidecarVersion,
-      imageDigest: result.sidecarImageDigest,
-    } });
+    return NextResponse.json({
+      scores,
+      summary: result.summary,
+      sidecar: {
+        version: result.sidecarVersion,
+        imageDigest: result.sidecarImageDigest,
+        requirementsHash: result.requirementsHash,
+      },
+    });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "sidecar call failed" },

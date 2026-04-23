@@ -15,39 +15,34 @@ This tool operationalizes the paper's 6-step workflow:
 
 - **Ephemeral by default.** Uploaded corpora are processed in-memory and never persisted server-side. Per-document scores and raw LLM responses stream directly into a download bundle the researcher keeps.
 - **BYOK by default.** Users paste their own API key; the tool calls the provider's list-models endpoint to populate the model dropdown. Reviewers testing the JMS demo can enter a password to unlock a server-side key capped at ~$2 of spend per session.
-- **Reproducibility first.** Every run persists a manifest: provider, model alias + exact returned version string, temperature, seed, prompt version, construct version, Docker image digest for the Python sidecar.
+- **Reproducibility first.** Every run persists a manifest: provider, model alias + exact returned version string, temperature, seed, prompt version, construct version, and the SHA-256 hash of the pinned Python `requirements.txt`.
 - **Forkable.** MIT license, monorepo with a documented plugin directory for contributing new traditional analytic methods.
 
 ## Monorepo layout
 
 ```
-apps/web/               Next.js 15 App Router frontend + API routes
-packages/shared/        LlmProvider interface, prompt templates, Zod schemas
-services/python/        FastAPI sidecar (dictionary scoring, statsmodels regressions)
-methods/                Drop-in plugin directory for new TraditionalMethods (M3+)
+apps/web/                   Next.js 15 App Router frontend + API routes
+apps/web/api/python/        Vercel Python functions (dictionary scoring, regression)
+packages/shared/            LlmProvider interface, prompt templates, Zod schemas
+methods/                    Drop-in plugin directory for new TraditionalMethods (M3+)
 ```
 
 ## Quickstart (local dev)
 
-Prerequisites: Node 20+, pnpm 9+, Python 3.12+, Docker (optional, for the sidecar).
+Prerequisites: Node 20+, pnpm 9+, Python 3.12+.
 
 ```bash
 pnpm install
 cp apps/web/.env.example apps/web/.env.local   # fill in Clerk, Neon, etc.
 pnpm db:migrate
-pnpm dev                                        # Next.js on :3000
-
-# In another terminal, start the Python sidecar:
-cd services/python
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+pnpm dev                                        # Next.js on :3000 (Vercel dev serves Python functions too)
 ```
+
+The Python dictionary + regression endpoints live in `apps/web/api/python/` and are auto-deployed as Vercel serverless functions using the pinned `apps/web/requirements.txt` (numpy + scipy + regex only, to stay within Vercel's lambda size limit).
 
 ## Deploy
 
-- **Next.js app** → Vercel. Environment variables listed in `apps/web/.env.example`.
-- **Python sidecar** → Fly.io. `fly launch` from `services/python/` then `fly deploy`.
+- **Next.js app + Python functions** → Vercel. A single `vercel deploy` ships both; environment variables listed in `apps/web/.env.example`.
 - **Database** → Neon Postgres, EU region for GDPR.
 
 ## Citing the underlying paper

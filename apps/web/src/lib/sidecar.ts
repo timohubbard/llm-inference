@@ -19,6 +19,7 @@ export interface DictionaryScoreResponse {
   };
   sidecarVersion: string;
   sidecarImageDigest: string | null;
+  requirementsHash: string;
 }
 
 export interface RegressionRequest {
@@ -31,36 +32,33 @@ export interface RegressionResponse {
   coefficients: Record<string, { estimate: number; se: number; tValue: number; pValue: number }>;
   fit: { rSquared?: number; adjRSquared?: number; llf?: number; aic?: number; bic?: number; n: number };
   residuals?: number[];
+  sidecarVersion?: string;
+  requirementsHash?: string;
 }
 
-function sidecarUrl(path: string): string {
-  const base = process.env.PYTHON_SIDECAR_URL ?? "http://localhost:8000";
-  return `${base.replace(/\/$/, "")}${path}`;
+function resolveUrl(path: string, req: Request): string {
+  const url = new URL(req.url);
+  return `${url.protocol}//${url.host}${path}`;
 }
 
-async function post<TReq, TResp>(path: string, body: TReq): Promise<TResp> {
-  const res = await fetch(sidecarUrl(path), {
+async function post<TReq, TResp>(path: string, body: TReq, req: Request): Promise<TResp> {
+  const res = await fetch(resolveUrl(path, req), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(process.env.PYTHON_SIDECAR_SHARED_SECRET
-        ? { "x-sidecar-secret": process.env.PYTHON_SIDECAR_SHARED_SECRET }
-        : {}),
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
     cache: "no-store",
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Python sidecar ${path} failed: ${res.status} ${text}`);
+    throw new Error(`Python function ${path} failed: ${res.status} ${text}`);
   }
   return (await res.json()) as TResp;
 }
 
-export function scoreDictionary(req: DictionaryScoreRequest) {
-  return post<DictionaryScoreRequest, DictionaryScoreResponse>("/dictionary/score", req);
+export function scoreDictionary(payload: DictionaryScoreRequest, req: Request) {
+  return post<DictionaryScoreRequest, DictionaryScoreResponse>("/api/python/dictionary", payload, req);
 }
 
-export function runRegression(req: RegressionRequest) {
-  return post<RegressionRequest, RegressionResponse>("/regression/fit", req);
+export function runRegression(payload: RegressionRequest, req: Request) {
+  return post<RegressionRequest, RegressionResponse>("/api/python/regression", payload, req);
 }

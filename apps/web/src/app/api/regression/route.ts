@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.message }, { status: 400 });
 
   try {
-    const result = await runRegression(parsed.data);
+    const result = await runRegression(parsed.data, req);
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(
