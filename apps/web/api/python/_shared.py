@@ -8,16 +8,99 @@ importable from sibling handlers. Each handler (`dictionary.py`,
 from __future__ import annotations
 
 import hashlib
+import math
 import os
 import re
 from typing import Any, Dict, Iterable, List, Tuple
 
 import numpy as np
 import regex as regex_lib
-from scipy import stats as sp_stats
 
 
-SIDECAR_VERSION = "0.2.0"
+SIDECAR_VERSION = "0.3.0"
+
+
+# --- Statistical helpers (numpy + stdlib only) ---
+
+
+def _norm_sf_abs(z: np.ndarray) -> np.ndarray:
+    """Two-sided tail for the standard normal: P(|Z| > |z|) = erfc(|z|/sqrt(2))."""
+    out = np.empty_like(z, dtype=float)
+    sqrt2 = math.sqrt(2.0)
+    for i, v in enumerate(z):
+        vf = float(v)
+        out[i] = math.erfc(abs(vf) / sqrt2) if math.isfinite(vf) else float("nan")
+    return out
+
+
+def _betacf(a: float, b: float, x: float, max_iter: int = 200, eps: float = 3e-7) -> float:
+    """Continued-fraction expansion for the incomplete beta (Numerical Recipes §6.4)."""
+    qab = a + b
+    qap = a + 1.0
+    qam = a - 1.0
+    c = 1.0
+    d = 1.0 - qab * x / qap
+    if abs(d) < 1e-30:
+        d = 1e-30
+    d = 1.0 / d
+    h = d
+    for m in range(1, max_iter + 1):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        if abs(d) < 1e-30:
+            d = 1e-30
+        c = 1.0 + aa / c
+        if abs(c) < 1e-30:
+            c = 1e-30
+        d = 1.0 / d
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        if abs(d) < 1e-30:
+            d = 1e-30
+        c = 1.0 + aa / c
+        if abs(c) < 1e-30:
+            c = 1e-30
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < eps:
+            return h
+    return h
+
+
+def _betai(a: float, b: float, x: float) -> float:
+    """Regularized incomplete beta I_x(a, b). Used for Student-t p-values."""
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    lnbt = (
+        math.lgamma(a + b)
+        - math.lgamma(a)
+        - math.lgamma(b)
+        + a * math.log(x)
+        + b * math.log(1.0 - x)
+    )
+    bt = math.exp(lnbt)
+    if x < (a + 1.0) / (a + b + 2.0):
+        return bt * _betacf(a, b, x) / a
+    return 1.0 - bt * _betacf(b, a, 1.0 - x) / b
+
+
+def _t_sf_abs(t_stat: np.ndarray, df: float) -> np.ndarray:
+    """Two-sided tail for Student-t: P(|T| > |t|) = I_{df/(df+t²)}(df/2, 1/2)."""
+    out = np.empty_like(t_stat, dtype=float)
+    a = df / 2.0
+    for i, t in enumerate(t_stat):
+        tf = float(t)
+        if not math.isfinite(tf):
+            out[i] = float("nan")
+            continue
+        x = df / (df + tf * tf)
+        out[i] = _betai(a, 0.5, x)
+    return out
 
 
 def _requirements_hash() -> str:
@@ -220,7 +303,7 @@ def _fit_ols(y: np.ndarray, X: np.ndarray, names: List[str]) -> Dict[str, Any]:
     se = np.sqrt(sigma2 * np.diag(XtX_inv))
     with np.errstate(divide="ignore", invalid="ignore"):
         t_stat = beta / se
-    p = 2 * (1 - sp_stats.t.cdf(np.abs(t_stat), dof))
+    p = _t_sf_abs(t_stat, float(dof))
     ss_tot = float(((y - y.mean()) ** 2).sum())
     ss_res = float((resid ** 2).sum())
     r2 = 1 - ss_res / ss_tot if ss_tot > 0 else float("nan")
@@ -286,7 +369,7 @@ def _fit_logit(y: np.ndarray, X: np.ndarray, names: List[str]) -> Dict[str, Any]
     se = np.sqrt(np.diag(cov))
     with np.errstate(divide="ignore", invalid="ignore"):
         z_stat = beta / se
-    p_val = 2 * (1 - sp_stats.norm.cdf(np.abs(z_stat)))
+    p_val = _norm_sf_abs(z_stat)
     aic = 2 * k - 2 * log_lik
     bic = k * np.log(n) - 2 * log_lik
     coefficients = {
