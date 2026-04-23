@@ -218,8 +218,19 @@ export function IntegrationView({ projectId }: { projectId: string }) {
             </select>
           </label>
           <div className="text-xs text-muted-foreground">
-            {joined.length} rows joinable across dict + llm + outcome.
+            {joined.length} rows joinable across dict + llm + outcome
+            {" "}(dict: {dict?.length ?? 0} · llm: {llm?.length ?? 0} ·
+            {" "}llm non-null: {llm ? llm.filter((r) => r.score !== null).length : 0} ·
+            {" "}outcome: {Object.keys(outcomeRows).length}).
           </div>
+          {dict && llm && Object.keys(outcomeRows).length > 0 && joined.length === 0 ? (
+            <div className="mt-2 rounded border border-amber-500/40 bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+              <b>No overlapping IDs.</b> Check that the dictionary, LLM, and outcome CSV share the same
+              document IDs. Examples: dict={dict.slice(0, 2).map((r) => r.id).join(", ") || "—"};
+              {" "}llm={llm.slice(0, 2).map((r) => r.id).join(", ") || "—"};
+              {" "}outcome={Object.keys(outcomeRows).slice(0, 2).join(", ") || "—"}.
+            </div>
+          ) : null}
         </div>
 
         {features.length > 0 ? (
