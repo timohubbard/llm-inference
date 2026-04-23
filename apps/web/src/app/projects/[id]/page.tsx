@@ -4,7 +4,7 @@ import Link from "next/link";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { constructs, corpora, projects } from "@/db/schema";
-import { AppNav } from "@/components/nav";
+import { STEPS, stepHref } from "@/lib/steps";
 
 export const dynamic = "force-dynamic";
 
@@ -21,59 +21,37 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const [constructRow] = await db().select().from(constructs).where(eq(constructs.projectId, id));
   const [corpusRow] = await db().select().from(corpora).where(eq(corpora.projectId, id));
 
-  const steps = [
-    {
-      n: 1,
-      title: "Articulate theory",
-      done: Boolean(constructRow),
-      href: `/projects/${id}/construct`,
-      cta: constructRow ? "Edit construct" : "Define a construct",
-    },
-    {
-      n: 2,
-      title: "Curate data",
-      done: Boolean(corpusRow),
-      href: `/projects/${id}/corpus`,
-      cta: corpusRow ? `${corpusRow.docCount} documents loaded` : "Load a corpus",
-    },
-    { n: 3, title: "Traditional analysis", done: false, href: `/projects/${id}/run`, cta: "Run dictionary scoring" },
-    { n: 4, title: "LLM micro-inference", done: false, href: `/projects/${id}/run`, cta: "Score with an LLM" },
-    { n: 5, title: "LLM macro-inference", done: false, href: `/projects/${id}/macro`, cta: "Surface candidate signals" },
-    { n: 6, title: "Integration & combined regression", done: false, href: `/projects/${id}/integrate`, cta: "Fit primary / LLM / combined" },
-    { n: 7, title: "Reflexivity log", done: false, href: `/projects/${id}/reflexivity`, cta: "Record judgment calls" },
-    { n: 8, title: "Export bundle", done: false, href: `/projects/${id}/export`, cta: "Download scores + appendix" },
-  ];
+  const statusBySlug: Record<string, string | undefined> = {
+    construct: constructRow ? `v${constructRow.version} saved` : undefined,
+    corpus: corpusRow ? `${corpusRow.docCount} documents loaded` : undefined,
+  };
 
   return (
-    <>
-      <AppNav projectId={id} />
-      <main className="mx-auto max-w-4xl px-6 py-10">
-        <h1 className="text-2xl font-semibold">{project.name}</h1>
-        {project.researchQuestion ? (
-          <p className="mt-2 text-sm text-muted-foreground">{project.researchQuestion}</p>
-        ) : null}
+    <main className="mx-auto max-w-4xl px-6 py-10">
+      <h1 className="text-2xl font-semibold">{project.name}</h1>
+      {project.researchQuestion ? (
+        <p className="mt-2 text-sm text-muted-foreground">{project.researchQuestion}</p>
+      ) : null}
 
-        <ol className="mt-8 space-y-3">
-          {steps.map((s) => (
-            <li key={s.n} className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <div className="text-xs font-medium uppercase text-muted-foreground">Step {s.n}</div>
-                <div className="mt-1 font-medium">{s.title}</div>
-              </div>
-              <Link
-                href={s.href}
-                className={
-                  s.done
-                    ? "rounded border px-3 py-1.5 text-sm"
-                    : "rounded bg-primary px-3 py-1.5 text-sm text-primary-foreground"
-                }
-              >
-                {s.cta}
-              </Link>
-            </li>
-          ))}
-        </ol>
-      </main>
-    </>
+      <ol className="mt-8 space-y-3">
+        {STEPS.map((s) => (
+          <li key={s.key} className="flex items-center justify-between rounded-lg border p-4">
+            <div>
+              <div className="text-xs font-medium uppercase text-muted-foreground">Step {s.n}</div>
+              <div className="mt-1 font-medium">{s.label}</div>
+              {statusBySlug[s.slug] ? (
+                <div className="mt-1 text-xs text-muted-foreground">{statusBySlug[s.slug]}</div>
+              ) : null}
+            </div>
+            <Link
+              href={stepHref(id, s.slug)}
+              className="rounded bg-primary px-3 py-1.5 text-sm text-primary-foreground"
+            >
+              Open
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </main>
   );
 }

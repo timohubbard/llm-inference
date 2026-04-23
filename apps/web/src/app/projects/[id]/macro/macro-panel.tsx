@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { markSessionStepDone } from "@/lib/steps";
+import { StepCompleteBanner } from "@/components/step-complete-banner";
 
 interface Construct {
   id: string;
@@ -46,6 +48,11 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
   }, [projectId]);
 
   const [promoted, setPromoted] = useState<PromotedFeature[]>([]);
+  const [justPromoted, setJustPromoted] = useState(false);
+
+  useEffect(() => {
+    if (promoted.length > 0) markSessionStepDone("macro", projectId, true);
+  }, [promoted.length, projectId]);
 
   const sample = useMemo(() => {
     if (!docs) return [];
@@ -99,6 +106,7 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
     const next = [...promoted.filter((p) => p.name !== name), feature];
     setPromoted(next);
     sessionStorage.setItem(`features:${projectId}`, JSON.stringify(next));
+    setJustPromoted(true);
   }
 
   function promotePresence(signal: Signal) {
@@ -116,12 +124,14 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
     const next = [...promoted.filter((p) => p.name !== name), feature];
     setPromoted(next);
     sessionStorage.setItem(`features:${projectId}`, JSON.stringify(next));
+    setJustPromoted(true);
   }
 
   function removeFeature(name: string) {
     const next = promoted.filter((p) => p.name !== name);
     setPromoted(next);
     sessionStorage.setItem(`features:${projectId}`, JSON.stringify(next));
+    if (next.length === 0) markSessionStepDone("macro", projectId, false);
   }
 
   return (
@@ -254,6 +264,10 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
       ) : null}
 
       {err ? <p className="text-sm text-destructive">{err}</p> : null}
+
+      {justPromoted && promoted.length > 0 ? (
+        <StepCompleteBanner projectId={projectId} currentKey="macro" />
+      ) : null}
     </div>
   );
 }

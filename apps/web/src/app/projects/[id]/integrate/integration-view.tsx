@@ -1,6 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { markSessionStepDone } from "@/lib/steps";
+import { StepCompleteBanner } from "@/components/step-complete-banner";
+
+// Demo outcome: approximate Berkshire Hathaway per-share book-value growth
+// from year N+1, matched to the bundled Buffett letters for demo purposes.
+// Source: BRK annual reports (public). Intended as a teaching example only —
+// real analyses should use outcomes justified by the research question.
+const BUFFETT_DEMO_OUTCOME_CSV = `id,bv_growth_next_year
+brk-1977,0.198
+brk-1985,0.487
+brk-1999,0.065
+brk-2008,0.196
+brk-2019,0.024`;
 
 type Coef = { estimate: number; se: number; tValue: number; pValue: number };
 type RegressionResult = {
@@ -26,6 +39,7 @@ export function IntegrationView({ projectId }: { projectId: string }) {
   const [err, setErr] = useState<string | null>(null);
   const [family, setFamily] = useState<"ols" | "logit">("ols");
   const [selectedFeatures, setSelectedFeatures] = useState<Set<string>>(new Set());
+  const [justCompleted, setJustCompleted] = useState(false);
 
   useEffect(() => {
     const d = sessionStorage.getItem(`scores:dict:${projectId}`);
@@ -114,6 +128,8 @@ export function IntegrationView({ projectId }: { projectId: string }) {
       setPrimaryResult(primary);
       setLlmResult(llmSpec);
       setCombinedResult(combined);
+      markSessionStepDone("integrate", projectId, true);
+      setJustCompleted(true);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
@@ -147,9 +163,16 @@ export function IntegrationView({ projectId }: { projectId: string }) {
           placeholder="id,future_roa&#10;brk-1999,0.14&#10;brk-2008,-0.03"
           className="mt-2 w-full rounded border p-2 font-mono text-xs"
         />
-        <div className="mt-2 flex items-center gap-3">
+        <div className="mt-2 flex flex-wrap items-center gap-3">
           <button onClick={parseOutcomeCsv} className="rounded border px-3 py-1.5 text-sm">
             Load outcome
+          </button>
+          <button
+            onClick={() => setOutcomeCsv(BUFFETT_DEMO_OUTCOME_CSV)}
+            className="rounded border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50"
+            title="Fills the textarea with next-year BRK book-value growth for the bundled Buffett letters"
+          >
+            Load Buffett demo outcome
           </button>
           <span className="text-xs text-muted-foreground">
             {Object.keys(outcomeRows).length > 0
@@ -157,6 +180,9 @@ export function IntegrationView({ projectId }: { projectId: string }) {
               : "No outcome loaded."}
           </span>
         </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Demo outcome is next-year Berkshire per-share book-value growth — a teaching example, not a research design.
+        </p>
       </section>
 
       <section className="rounded-lg border p-4">
@@ -219,6 +245,8 @@ export function IntegrationView({ projectId }: { projectId: string }) {
       ) : null}
 
       {err ? <p className="text-sm text-destructive">{err}</p> : null}
+
+      {justCompleted ? <StepCompleteBanner projectId={projectId} currentKey="integrate" /> : null}
     </div>
   );
 }

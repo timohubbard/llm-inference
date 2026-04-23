@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { sha256Hex } from "@/lib/utils";
+import { StepCompleteBanner } from "@/components/step-complete-banner";
 
 interface Existing {
   id: string;
@@ -87,6 +88,7 @@ export function CorpusLoader({ projectId, existing }: { projectId: string; exist
   const [err, setErr] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [corpusName, setCorpusName] = useState("Custom corpus");
+  const [justLoaded, setJustLoaded] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function persistCorpus(docs: Doc[], name: string, source: string) {
@@ -121,6 +123,7 @@ export function CorpusLoader({ projectId, existing }: { projectId: string; exist
       );
       setInfo(`Loaded ${docs.length} letters into this browser session (checksum ${checksum.slice(0, 12)}…).`);
       router.refresh();
+      setJustLoaded(true);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
@@ -149,6 +152,7 @@ export function CorpusLoader({ projectId, existing }: { projectId: string; exist
         `Parsed ${docs.length} documents from ${file.name} (checksum ${checksum.slice(0, 12)}…). Text stays in this browser only.`,
       );
       router.refresh();
+      setJustLoaded(true);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
@@ -219,6 +223,8 @@ export function CorpusLoader({ projectId, existing }: { projectId: string; exist
 
       {err ? <p className="text-sm text-destructive">{err}</p> : null}
       {info ? <p className="text-sm text-muted-foreground">{info}</p> : null}
+
+      {justLoaded ? <StepCompleteBanner projectId={projectId} currentKey="corpus" /> : null}
     </div>
   );
 }

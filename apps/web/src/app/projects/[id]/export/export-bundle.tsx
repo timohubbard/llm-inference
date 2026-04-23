@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { markSessionStepDone } from "@/lib/steps";
 
 export function ExportBundle({ projectId, projectName }: { projectId: string; projectName: string }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [downloaded, setDownloaded] = useState(false);
 
   async function downloadCsv() {
     setBusy(true);
@@ -57,6 +59,8 @@ export function ExportBundle({ projectId, projectName }: { projectId: string; pr
 
       const appendix = renderMethodsAppendix({ projectId, projectName, n: rows.length, reflexivity, features });
       downloadBlob(`${slug(projectName)}-methods-appendix.md`, appendix, "text/markdown");
+      setDownloaded(true);
+      markSessionStepDone("export", projectId, true);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
@@ -74,6 +78,18 @@ export function ExportBundle({ projectId, projectName }: { projectId: string; pr
         {busy ? "Preparing…" : "Download scores + methods appendix"}
       </button>
       {err ? <p className="text-sm text-destructive">{err}</p> : null}
+      {downloaded ? (
+        <p className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
+          <svg viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor" aria-hidden>
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8.5 12.086l6.793-6.793a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Bundle downloaded. Analysis complete.
+        </p>
+      ) : null}
     </div>
   );
 }

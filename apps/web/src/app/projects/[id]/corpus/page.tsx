@@ -3,7 +3,6 @@ import { notFound, redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { corpora, projects } from "@/db/schema";
-import { AppNav } from "@/components/nav";
 import { CorpusLoader } from "./corpus-loader";
 
 export const dynamic = "force-dynamic";
@@ -21,17 +20,14 @@ export default async function CorpusPage({ params }: { params: Promise<{ id: str
   const [existing] = await db().select().from(corpora).where(eq(corpora.projectId, id));
 
   return (
-    <>
-      <AppNav projectId={id} />
-      <main className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="text-2xl font-semibold">Corpus</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Upload documents as CSV or JSONL, or load the bundled Warren Buffett shareholder-letters demo. Documents are
-          processed in memory — we store only the descriptor (name, doc count, content checksum) and never the text
-          itself.
-        </p>
-        <CorpusLoader projectId={id} existing={existing ?? null} />
-      </main>
-    </>
+    <main className="mx-auto max-w-3xl px-6 py-10">
+      <h1 className="text-2xl font-semibold">Step 2 — Corpus</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Upload documents as CSV or JSONL, or load the bundled Warren Buffett shareholder-letters demo. Documents are
+        processed in memory — we store only the descriptor (name, doc count, content checksum) and never the text
+        itself.
+      </p>
+      <CorpusLoader projectId={id} existing={existing ?? null} />
+    </main>
   );
 }

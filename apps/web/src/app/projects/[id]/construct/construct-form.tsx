@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { StepCompleteBanner } from "@/components/step-complete-banner";
 
 interface Initial {
   id: string;
@@ -33,6 +34,7 @@ export function ConstructForm({ projectId, initial }: { projectId: string; initi
   );
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
 
   async function save() {
     setBusy(true);
@@ -58,8 +60,8 @@ export function ConstructForm({ projectId, initial }: { projectId: string; initi
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? "Save failed");
-      router.push(`/projects/${projectId}`);
       router.refresh();
+      setJustSaved(true);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
@@ -122,6 +124,8 @@ export function ConstructForm({ projectId, initial }: { projectId: string; initi
       >
         {busy ? "Saving…" : initial ? "Save new version" : "Save construct"}
       </button>
+
+      {justSaved ? <StepCompleteBanner projectId={projectId} currentKey="construct" /> : null}
     </div>
   );
 }
