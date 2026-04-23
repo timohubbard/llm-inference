@@ -27,3 +27,6 @@ apps/web/.venv*
 test-results
 playwright-report
 blob-report
+
+# Local tool state (e.g. Claude Code scheduled tasks)
+.claude/
