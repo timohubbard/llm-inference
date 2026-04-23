@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { constructs, projects } from "@/db/schema";
+import { StepGuide } from "@/components/step-guide";
 import { ConstructForm } from "./construct-form";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,11 @@ export default async function ConstructPage({ params }: { params: Promise<{ id: 
         Define the construct, scale, and per-point anchors. Each edit creates a new version — prior versions remain
         attached to any runs that used them.
       </p>
+      <StepGuide
+        what="A construct is the latent thing you want to measure (e.g., promotion focus, tone, uncertainty). The definition, scale, and anchors you write here are passed verbatim into every LLM scoring call."
+        todo="Name the construct, write a 1–3 sentence definition, pick a numeric scale, and describe what each scale point means. Cite the literature the construct comes from."
+        next="Step 2 — load the corpus of documents you want scored."
+      />
       <ConstructForm projectId={id} initial={existing ?? null} />
     </main>
   );

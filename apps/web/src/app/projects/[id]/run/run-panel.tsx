@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { DeviationView } from "@/app/projects/[id]/deviation/deviation-view";
 
 interface Construct {
   id: string;
@@ -287,18 +288,28 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
 
         {phase === "done" ? (
           <div className="mt-6 rounded bg-muted p-3 text-sm">
-            Done — {fullScores.length} documents scored. Open the{" "}
-            <Link href={`/projects/${projectId}/deviation`} className="underline">
-              deviation view
-            </Link>{" "}
-            to triangulate against the dictionary measure, or continue to{" "}
-            <Link href={`/projects/${projectId}/macro`} className="underline">
-              Step 5 — LLM macro-inference
-            </Link>
-            .
+            Done — {fullScores.length} documents scored. Triangulation against the dictionary measure is shown below.
           </div>
         ) : null}
       </section>
+
+      {phase === "done" && dictScores.length > 0 ? (
+        <section className="rounded-lg border p-4">
+          <h2 className="font-medium">Triangulation — dictionary vs. LLM</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Pearson/Spearman correlations, scatter plot, and the top disagreement documents. Low correlation or
+            large per-document deltas flag places where the two methods diverge — that&apos;s where the LLM
+            rationales earn their keep.
+          </p>
+          <DeviationView projectId={projectId} />
+          <div className="mt-4 rounded border border-primary/30 bg-primary/5 p-3 text-sm">
+            Ready to move on?{" "}
+            <Link href={`/projects/${projectId}/macro`} className="font-medium underline">
+              Continue to Step 5 — LLM macro-inference →
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       {err ? <p className="text-sm text-destructive">{err}</p> : null}
     </div>

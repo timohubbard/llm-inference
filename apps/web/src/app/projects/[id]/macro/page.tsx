@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { constructs, corpora, projects } from "@/db/schema";
+import { StepGuide } from "@/components/step-guide";
 import { MacroPanel } from "./macro-panel";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +30,11 @@ export default async function MacroPage({ params }: { params: Promise<{ id: stri
         add to the combined regression in Step 6.
       </p>
 
+      <StepGuide
+        what="The LLM reads a stratified sample of your corpus and proposes signals it thinks distinguish high vs. low values of the construct — lexical, phrasal, syntactic, semantic, or structural. These become auditable, transparent features."
+        todo="Pick a sample size, run 'Surface candidate signals,' then promote the useful ones into keyword counts or presence flags. Edit the pattern when prompted to tune it to your corpus."
+        next="Step 6 — add the promoted features as covariates in the combined regression. Promote as many or few as you like."
+      />
       {!construct || !corpus ? (
         <p className="mt-6 rounded border border-destructive/30 bg-destructive/10 p-3 text-sm">
           Define a construct and load a corpus first.
