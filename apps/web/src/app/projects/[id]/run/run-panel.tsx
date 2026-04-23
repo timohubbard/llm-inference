@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { DeviationView } from "@/app/projects/[id]/deviation/deviation-view";
 import { StepCompleteBanner } from "@/components/step-complete-banner";
+import { markSessionStepDone } from "@/lib/steps";
 
 interface Construct {
   id: string;
@@ -66,6 +67,7 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
       if (!res.ok) throw new Error(body.error ?? "Dictionary scoring failed");
       setDictScores(body.scores);
       sessionStorage.setItem(`scores:dict:${projectId}`, JSON.stringify(body.scores));
+      markSessionStepDone("traditional", projectId, true);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
@@ -114,6 +116,7 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
       const rows = await streamScores(docs);
       setFullScores(rows);
       sessionStorage.setItem(`scores:llm:${projectId}`, JSON.stringify(rows));
+      markSessionStepDone("llm", projectId, true);
       setPhase("done");
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));

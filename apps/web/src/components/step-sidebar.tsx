@@ -19,7 +19,6 @@ export function StepSidebar({
     function read() {
       const next: Partial<Record<StepKey, boolean>> = {};
       for (const s of STEPS) {
-        if (s.source !== "session") continue;
         try {
           next[s.key] = sessionStorage.getItem(sessionDoneKey(s.key, projectId)) === "1";
         } catch {
