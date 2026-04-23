@@ -5,7 +5,9 @@ import { getProvider, type ProviderId } from "@llmi/shared";
 
 const body = z.object({
   provider: z.enum(["anthropic", "openai", "openai-compat", "google"]),
-  model: z.string().min(1),
+  // Back-compat: accept either a single `model` or a list of `models`
+  model: z.string().min(1).optional(),
+  models: z.array(z.string().min(1)).optional(),
   docsSample: z.array(z.object({ id: z.string(), text: z.string() })).min(1),
   totalDocs: z.number().int().positive(),
 });
@@ -21,6 +23,14 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
   }
+  const models = parsed.data.models && parsed.data.models.length > 0
+    ? parsed.data.models
+    : parsed.data.model
+      ? [parsed.data.model]
+      : null;
+  if (!models) {
+    return NextResponse.json({ error: "Must supply `model` or `models`" }, { status: 400 });
+  }
 
   const avgChars = parsed.data.docsSample.reduce((a, d) => a + d.text.length, 0) / parsed.data.docsSample.length;
   const avgInputTokens = Math.ceil((avgChars + 600) / CHARS_PER_TOKEN);
@@ -28,10 +38,17 @@ export async function POST(req: Request) {
   const outputTokens = OUTPUT_TOKENS_PER_DOC * parsed.data.totalDocs;
 
   const provider = getProvider(parsed.data.provider as ProviderId);
-  const estimatedUsd = provider.estimateCost(parsed.data.model, inputTokens, outputTokens);
+  const estimates = models.map((m) => ({
+    model: m,
+    estimatedUsd: provider.estimateCost(m, inputTokens, outputTokens) ?? 0,
+  }));
+  const totalUsd = estimates.reduce((a, e) => a + e.estimatedUsd, 0);
 
   return NextResponse.json({
-    estimatedUsd,
+    estimates,
+    totalUsd,
+    // Legacy fields — kept for any older client that only reads `estimatedUsd`
+    estimatedUsd: estimates[0]?.estimatedUsd ?? 0,
     inputTokens,
     outputTokens,
     docsAveragedOver: parsed.data.docsSample.length,

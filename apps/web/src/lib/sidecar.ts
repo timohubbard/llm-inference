@@ -1,17 +1,36 @@
+export type DictionaryMethod = "lmd" | "mfd2" | "emolex" | "huliu" | "liwc" | "custom_dict";
+
 export interface DictionaryScoreRequest {
-  method: "lmd" | "liwc" | "custom_dict";
+  method: DictionaryMethod;
   params?: Record<string, unknown>;
   dictionary?: Record<string, string[]>;
   documents: Array<{ id: string; text: string }>;
 }
 
+export interface DictionaryMeta {
+  id: string;
+  name?: string;
+  source?: string;
+  citation?: string;
+  note?: string;
+  categories: string[];
+  primaryCategory: string | null;
+  primaryMeasure?: {
+    type: "diff_ratio" | "single_category";
+    positive?: string;
+    negative?: string;
+    category?: string;
+    label: string;
+  } | null;
+}
+
 export interface DictionaryScoreResponse {
   method: string;
+  meta: DictionaryMeta;
   scores: Array<{
     id: string;
     categoryCounts: Record<string, number>;
     tokenCount: number;
-    score?: number;
   }>;
   summary: {
     docCount: number;

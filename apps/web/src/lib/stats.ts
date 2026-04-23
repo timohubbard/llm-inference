@@ -42,6 +42,44 @@ export function spearman(xs: number[], ys: number[]): number | null {
   return pearson(ranks(xs), ranks(ys));
 }
 
+// Intraclass correlation, ICC(2,1) — two-way random, absolute agreement,
+// single rater. Shrout & Fleiss (1979) formulation. `a` and `b` are paired
+// observations (one per target, two raters). Returns null when undefined
+// (e.g. fewer than 2 observations or zero total variance).
+export function icc21(a: number[], b: number[]): number | null {
+  if (a.length !== b.length || a.length < 2) return null;
+  const n = a.length;
+  const k = 2;
+  const rowMeans: number[] = [];
+  let grandSum = 0;
+  for (let i = 0; i < n; i++) {
+    const ai = a[i] ?? 0;
+    const bi = b[i] ?? 0;
+    rowMeans.push((ai + bi) / 2);
+    grandSum += ai + bi;
+  }
+  const grandMean = grandSum / (n * k);
+  const colMeanA = a.reduce((s, v) => s + v, 0) / n;
+  const colMeanB = b.reduce((s, v) => s + v, 0) / n;
+  let ssBetweenRows = 0;
+  for (const rm of rowMeans) ssBetweenRows += (rm - grandMean) ** 2;
+  ssBetweenRows *= k;
+  const ssBetweenCols = n * ((colMeanA - grandMean) ** 2 + (colMeanB - grandMean) ** 2);
+  let ssTotal = 0;
+  for (let i = 0; i < n; i++) {
+    const ai = a[i] ?? 0;
+    const bi = b[i] ?? 0;
+    ssTotal += (ai - grandMean) ** 2 + (bi - grandMean) ** 2;
+  }
+  const ssError = ssTotal - ssBetweenRows - ssBetweenCols;
+  const msBetweenRows = ssBetweenRows / (n - 1);
+  const msBetweenCols = ssBetweenCols / (k - 1);
+  const msError = ssError / ((n - 1) * (k - 1));
+  const denom = msBetweenRows + (k - 1) * msError + (k * (msBetweenCols - msError)) / n;
+  if (denom === 0 || !isFinite(denom)) return null;
+  return (msBetweenRows - msError) / denom;
+}
+
 export function topDisagreements<T>(
   items: T[],
   getX: (t: T) => number,

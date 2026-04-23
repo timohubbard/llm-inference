@@ -1,0 +1,107 @@
+{
+  "_meta": {
+    "id": "mfd2",
+    "name": "Moral Foundations Dictionary 2.0 (seed)",
+    "source": "Frimer et al. 2019, https://osf.io/xakyw/",
+    "citation": "Frimer, J. A. et al. (2019). Moral Foundations Dictionary 2.0.",
+    "primaryCategory": null,
+    "primaryMeasure": null,
+    "categories": ["care", "harm", "fairness", "cheating", "loyalty", "betrayal", "authority", "subversion", "sanctity", "degradation"],
+    "note": "Curated seed (~40-50 words per foundation). Replace with the full MFD 2.0 dic via the Upload flow for substantive analysis."
+  },
+  "care": [
+    "benefit", "benefits", "caring", "compassion", "compassionate", "defend", "defended", "defending", "defends", "empathy",
+    "empathic", "empathetic", "gentle", "gently", "guard", "guarded", "guarding", "heal", "healed", "healing",
+    "heals", "help", "helped", "helpful", "helpfully", "helping", "helps", "kind", "kindly", "kindness",
+    "kinship", "mercy", "merciful", "mercifully", "nurture", "nurtured", "nurturing", "nurtures", "peace", "peaceful",
+    "peacefully", "protect", "protected", "protecting", "protection", "protective", "protects", "rescue", "rescued", "rescues",
+    "rescuing", "safeguard", "safeguarding", "safety", "save", "saved", "saves", "saving", "shelter", "sheltered",
+    "sympathy", "sympathize", "sympathetic", "tender", "tenderness", "warmth"
+  ],
+  "harm": [
+    "abuse", "abused", "abusing", "abusive", "aggress", "aggression", "aggressive", "aggressor", "annihilate", "annihilated",
+    "assault", "assaulted", "attack", "attacked", "attacking", "attacks", "brutal", "brutality", "brutalize", "brutally",
+    "cruel", "cruelly", "cruelty", "damage", "damaged", "damages", "damaging", "destroy", "destroyed", "destroying",
+    "destroys", "destruction", "destructive", "exploit", "exploited", "exploiting", "exploits", "harm", "harmed", "harmful",
+    "harming", "harms", "hurt", "hurting", "hurts", "injure", "injured", "injures", "injuring", "injury",
+    "kill", "killed", "killing", "kills", "murder", "murdered", "murdering", "pain", "painful", "savage",
+    "slaughter", "suffer", "suffered", "suffering", "torment", "torture", "tortured", "violence", "violent", "wound",
+    "wounded", "wounds"
+  ],
+  "fairness": [
+    "balance", "balanced", "balances", "egalitarian", "egalitarianism", "equal", "equality", "equally", "equitable", "equitably",
+    "equity", "evenhanded", "evenhandedly", "fair", "fairly", "fairness", "impartial", "impartiality", "impartially", "just",
+    "justice", "justifiable", "justly", "neutral", "neutrality", "neutrally", "objective", "objectively", "objectivity", "reasonable",
+    "reasonableness", "reciprocate", "reciprocated", "reciprocity", "rights", "unbiased", "upright", "uprightness"
+  ],
+  "cheating": [
+    "bias", "biased", "biases", "cheat", "cheated", "cheater", "cheaters", "cheating", "cheats", "collude",
+    "colluded", "collusion", "corrupt", "corrupted", "corruption", "crook", "crooked", "deceit", "deceitful", "deceive",
+    "deceived", "deceiving", "defraud", "defrauded", "dishonest", "dishonestly", "dishonesty", "discriminate", "discriminated", "discrimination",
+    "discriminatory", "dupe", "duped", "dupes", "duplicity", "fake", "faked", "faker", "fakes", "favoritism",
+    "fraud", "fraudulent", "fraudulently", "inequity", "injustice", "lie", "lied", "lies", "lying", "mislead",
+    "misled", "misleading", "prejudice", "prejudiced", "prejudices", "swindle", "swindled", "unfair", "unfairly", "unfairness",
+    "unjust", "unjustly"
+  ],
+  "loyalty": [
+    "allegiance", "allegiances", "allied", "allies", "alliance", "alliances", "ally", "belong", "belonged", "belonging",
+    "belongs", "brotherhood", "camaraderie", "citizen", "citizens", "citizenship", "clan", "clans", "collective", "collectively",
+    "comrade", "comrades", "devote", "devoted", "devotion", "faithful", "faithfully", "fidelity", "homeland", "honor",
+    "honored", "honoring", "honors", "kin", "kinfolk", "loyal", "loyalty", "nation", "national", "nationalism",
+    "nationalist", "nationality", "nations", "patriot", "patriotic", "patriotism", "solidarity", "team", "teammate", "teammates",
+    "together", "togetherness", "tribe", "tribes", "unity", "united"
+  ],
+  "betrayal": [
+    "abandon", "abandoned", "abandoning", "abandonment", "abandons", "apostate", "apostates", "betray", "betrayal", "betrayed",
+    "betrayer", "betrayers", "betraying", "betrays", "defect", "defected", "defecting", "defection", "defector", "defectors",
+    "defects", "desert", "deserted", "deserter", "deserters", "deserting", "deserts", "disloyal", "disloyally", "disloyalty",
+    "divide", "divided", "divides", "divisive", "foreign", "foreigner", "foreigners", "forsake", "forsaken", "forsook",
+    "heretic", "heretics", "infidelity", "mutiny", "mutinies", "renegade", "renegades", "sedition", "seditious", "spy",
+    "spied", "spies", "traitor", "traitorous", "traitors", "treachery", "treacherous", "treason", "treasonous", "turncoat",
+    "turncoats", "unfaithful"
+  ],
+  "authority": [
+    "abide", "abiding", "authorities", "authority", "boss", "captain", "chief", "command", "commanded", "commander",
+    "commanding", "commands", "comply", "complied", "complies", "compliance", "compliant", "complying", "control", "controlled",
+    "controlling", "controls", "dean", "director", "duties", "duty", "enforce", "enforced", "enforcement", "enforcing",
+    "father", "fathers", "hierarchy", "hierarchical", "honor", "honored", "law", "laws", "lawful", "leader",
+    "leaders", "leadership", "loyal", "mother", "mothers", "obey", "obeyed", "obeying", "obeys", "officer",
+    "officers", "order", "ordered", "orderly", "parent", "parental", "parents", "permission", "permitted", "preside",
+    "presided", "president", "pride", "proper", "properly", "rank", "ranks", "respect", "respected", "respectful",
+    "respecting", "respects", "role", "roles", "rule", "ruled", "ruler", "rules", "status", "submit",
+    "submitted", "submission", "submissive", "tradition", "traditional", "traditionally"
+  ],
+  "subversion": [
+    "anarchic", "anarchism", "anarchist", "anarchy", "chaos", "chaotic", "defy", "defied", "defies", "defying",
+    "defiance", "defiant", "demonstrate", "demonstrated", "demonstration", "demonstrations", "disobedience", "disobedient", "disobey", "disobeyed",
+    "disorder", "disorderly", "disrespect", "disrespectful", "disrespected", "disrupt", "disrupted", "disrupting", "disruption", "disruptive",
+    "dissent", "dissented", "dissenter", "dissenters", "dissenting", "insubordinate", "insubordination", "insurgent", "insurgents", "insurrection",
+    "lawless", "lawlessness", "mutinous", "mutiny", "overthrow", "overthrew", "protest", "protested", "protester", "protesters",
+    "protesting", "protests", "rebel", "rebelled", "rebelling", "rebellion", "rebellions", "rebellious", "rebels", "refuse",
+    "refused", "refuses", "refusing", "revolt", "revolted", "revolting", "revolution", "revolutionary", "riot", "rioted",
+    "rioting", "riots", "sedition", "seditious", "subversion", "subversive", "undermine", "undermined", "undermining", "unrest",
+    "uprising", "uprisings", "upstart"
+  ],
+  "sanctity": [
+    "angel", "angelic", "angels", "blessed", "bless", "blessing", "blessings", "chaste", "chastity", "clean",
+    "cleanliness", "consecrate", "consecrated", "devout", "devoutly", "divine", "divinely", "divinity", "elegant", "elegantly",
+    "exalt", "exalted", "faith", "faithful", "God", "godly", "godlike", "hallowed", "hallow", "heaven",
+    "heavenly", "holier", "holiest", "holiness", "holy", "immaculate", "innocence", "innocent", "modest", "modesty",
+    "piety", "pious", "pray", "prayed", "prayer", "prayers", "pristine", "pure", "purely", "pureness",
+    "purify", "purified", "purity", "reverent", "reverence", "sacred", "sacredly", "saint", "saintly", "saints",
+    "sanctified", "sanctify", "sanctity", "spiritual", "spiritually", "virgin", "virginal", "virtue", "virtues", "virtuous",
+    "virtuously", "wholesome"
+  ],
+  "degradation": [
+    "adulterate", "adulterated", "adulterating", "adulteration", "appalling", "appallingly", "corrupt", "corrupted", "corrupting", "corruption",
+    "debase", "debased", "debasement", "debauchery", "defile", "defiled", "defiling", "degenerate", "degenerated", "degeneration",
+    "degrade", "degraded", "degrading", "depraved", "depravity", "desecrate", "desecrated", "desecration", "dirt", "dirty",
+    "disgust", "disgusted", "disgusting", "disgusts", "dishonor", "dishonored", "dishonoring", "dishonors", "exploitation", "filth",
+    "filthy", "gross", "grossly", "immoral", "immorality", "indecent", "indecency", "lewd", "lewdly", "obscene",
+    "obscenely", "obscenity", "perverse", "perversion", "perverted", "pollute", "polluted", "polluting", "pollution", "profane",
+    "profaned", "profanely", "profanity", "repulsive", "repulse", "repulsed", "sick", "sickened", "sickening", "sin",
+    "sinful", "sinned", "sinner", "sinners", "sinning", "sleazy", "smut", "smutty", "sordid", "sully",
+    "sullied", "tainted", "taint", "tainting", "taints", "unclean", "vice", "vile", "vulgar", "wicked",
+    "wickedly", "wickedness"
+  ]
+}

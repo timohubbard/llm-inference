@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CartesianGrid, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from "recharts";
+import { listLlmRuns, resolveCanonicalScores, type LlmScoreRow } from "@/lib/llm-runs";
 import { pearson, spearman, topDisagreements } from "@/lib/stats";
 
 interface JoinedScore {
@@ -15,20 +16,24 @@ interface JoinedScore {
 export function DeviationView({ projectId }: { projectId: string }) {
   const [rows, setRows] = useState<JoinedScore[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       const dictRaw = sessionStorage.getItem(`scores:dict:${projectId}`);
-      const llmRaw = sessionStorage.getItem(`scores:llm:${projectId}`);
+      const { scores: llmScores } = resolveCanonicalScores(projectId);
+      const runs = listLlmRuns(projectId);
+      const canonical = window.sessionStorage.getItem(`canonical:llm:${projectId}`);
+      if (runs.length > 1 && !canonical) {
+        setNotice("Multiple LLM runs detected — pick one as canonical in Step 4 to continue.");
+      }
       const corpusRaw = sessionStorage.getItem(`corpus:${projectId}`);
-      if (!dictRaw || !llmRaw) {
+      if (!dictRaw || !llmScores) {
         setError("Run the dictionary pass and the LLM pass first.");
         return;
       }
       const dict = new Map((JSON.parse(dictRaw) as Array<{ id: string; score: number }>).map((r) => [r.id, r.score]));
-      const llm = new Map(
-        (JSON.parse(llmRaw) as Array<{ id: string; score: number | null; rationale?: string }>).map((r) => [r.id, r]),
-      );
+      const llm = new Map<string, LlmScoreRow>((llmScores as LlmScoreRow[]).map((r) => [r.id, r]));
       const texts = new Map(
         corpusRaw
           ? (JSON.parse(corpusRaw) as Array<{ id: string; text: string }>).map((d) => [d.id, d.text])
@@ -59,6 +64,7 @@ export function DeviationView({ projectId }: { projectId: string }) {
   }, [rows]);
 
   if (error) return <p className="mt-4 text-sm text-destructive">{error}</p>;
+  if (notice && !rows) return <p className="mt-4 text-sm text-amber-700 dark:text-amber-400">{notice}</p>;
   if (!rows) return <p className="mt-4 text-sm text-muted-foreground">Loading…</p>;
   if (rows.length === 0) return <p className="mt-4 text-sm text-muted-foreground">No overlapping scores yet.</p>;
 

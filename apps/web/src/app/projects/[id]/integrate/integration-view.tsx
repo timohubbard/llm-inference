@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { markSessionStepDone } from "@/lib/steps";
+import { resolveCanonicalScores } from "@/lib/llm-runs";
 import { StepCompleteBanner } from "@/components/step-complete-banner";
 
 // Demo outcome: approximate Berkshire Hathaway per-share book-value growth
@@ -60,10 +61,10 @@ export function IntegrationView({ projectId }: { projectId: string }) {
 
   useEffect(() => {
     const d = sessionStorage.getItem(`scores:dict:${projectId}`);
-    const l = sessionStorage.getItem(`scores:llm:${projectId}`);
     const f = sessionStorage.getItem(`features:${projectId}`);
     if (d) setDict(JSON.parse(d) as DictRow[]);
-    if (l) setLlm(JSON.parse(l) as ScoreRow[]);
+    const canonical = resolveCanonicalScores(projectId);
+    if (canonical.scores) setLlm(canonical.scores as unknown as ScoreRow[]);
     if (f) {
       const parsed = JSON.parse(f) as Feature[];
       setFeatures(parsed);

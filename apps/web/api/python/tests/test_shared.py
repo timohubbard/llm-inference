@@ -28,10 +28,30 @@ def test_lmd_counts_positive_and_negative():
     scores = {s["id"]: s for s in out["scores"]}
     assert scores["d1"]["categoryCounts"]["positive"] > scores["d1"]["categoryCounts"]["negative"]
     assert scores["d2"]["categoryCounts"]["negative"] > scores["d2"]["categoryCounts"]["positive"]
-    assert scores["d1"]["score"] is not None and scores["d1"]["score"] > 0
-    assert scores["d2"]["score"] is not None and scores["d2"]["score"] < 0
-    assert scores["d3"]["score"] == 0
+    assert "score" not in scores["d1"]  # primary measure now computed client-side
+    assert out["meta"]["id"] == "lmd"
+    assert "positive" in out["meta"]["categories"]
     assert out["sidecarVersion"].startswith("0.")
+
+
+def test_bundled_dictionaries_load():
+    from _shared import BUNDLED_DICTS  # noqa: WPS433
+    for expected in ("lmd", "mfd2", "emolex", "huliu"):
+        assert expected in BUNDLED_DICTS, f"missing bundled dict: {expected}"
+        entry = BUNDLED_DICTS[expected]
+        assert entry["categories"], f"{expected} has no category word lists"
+        assert entry["meta"].get("id") == expected
+
+
+def test_mfd2_routes_virtue_and_vice():
+    docs = [
+        {"id": "virtue", "text": "Their compassion and kindness protected the vulnerable with empathy."},
+        {"id": "vice", "text": "The cruelty and harm inflicted violent torture on innocent victims."},
+    ]
+    out = score_documents(method="mfd2", documents=docs)
+    by_id = {s["id"]: s for s in out["scores"]}
+    assert by_id["virtue"]["categoryCounts"]["care"] > 0
+    assert by_id["vice"]["categoryCounts"]["harm"] > 0
 
 
 def test_custom_dictionary():

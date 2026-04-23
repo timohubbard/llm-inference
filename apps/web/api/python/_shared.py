@@ -8,6 +8,7 @@ importable from sibling handlers. Each handler (`dictionary.py`,
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 import os
 import re
@@ -17,7 +18,7 @@ import numpy as np
 import regex as regex_lib
 
 
-SIDECAR_VERSION = "0.3.1"
+SIDECAR_VERSION = "0.4.0"
 
 
 # --- Statistical helpers (numpy + stdlib only) ---
@@ -119,50 +120,41 @@ def _requirements_hash() -> str:
 REQUIREMENTS_HASH = _requirements_hash()
 
 
-# --- Loughran-McDonald stub word lists (small seed; full LMD available from
-# https://sraf.nd.edu/loughranmcdonald-master-dictionary/). Users should upload
-# their licensed copy via the custom_dict path for substantive work.
-LMD_POSITIVE = {
-    "able", "achieve", "achieved", "achieving", "advance", "advances",
-    "benefit", "beneficial", "best", "better", "confidence", "confident",
-    "delight", "delighted", "effective", "efficiency", "enhance", "enhanced",
-    "excel", "excellent", "favorable", "gain", "gained", "great", "greater",
-    "growth", "improve", "improved", "improvement", "innovation", "innovative",
-    "leading", "opportunity", "opportunities", "outperform", "positive",
-    "profitable", "progress", "progressing", "strength", "strong", "success",
-    "successful", "surpass", "surpassed", "upturn", "win", "winning",
-}
-LMD_NEGATIVE = {
-    "adverse", "adversely", "bankrupt", "bankruptcy", "breach", "breaches",
-    "claim", "claims", "crisis", "critical", "damage", "damages",
-    "decline", "declined", "declining", "default", "deteriorate",
-    "deteriorated", "difficult", "difficulty", "disappointing", "disaster",
-    "doubt", "downturn", "erosion", "failure", "failed", "fraud",
-    "hurt", "hurting", "impair", "impairment", "impaired", "inadequate",
-    "loss", "losses", "misstate", "negative", "negatively", "poor",
-    "problem", "problems", "recession", "restructure", "restructuring",
-    "risk", "risks", "shortfall", "shortage", "shortages", "struggle",
-    "suffer", "suffered", "unfavorable", "unprofitable", "volatile",
-    "volatility", "weak", "weakness", "worse", "worsened",
-}
-LMD_UNCERTAINTY = {
-    "almost", "apparent", "approximate", "approximately", "assumption",
-    "believe", "contingency", "depend", "depends", "may", "maybe", "might",
-    "perhaps", "possible", "possibility", "predict", "tentative",
-    "uncertain", "uncertainty", "unclear", "unknown", "variable",
-}
-LMD_LITIGIOUS = {
-    "allegation", "allegations", "court", "defendant", "indict",
-    "indictment", "lawsuit", "litigation", "plaintiff", "settlement",
-    "subpoena", "testimony", "tort", "verdict",
-}
+# --- Dictionary registry ---
+# Bundled dictionaries live as JSON files in ./dictionaries/ and are loaded at
+# import time. Each JSON file carries a `_meta` block describing id, source,
+# bundled categories, and the default primary measure. See dictionaries/LICENSES.md
+# for attribution and the note about bundled seeds vs. full published lists.
 
-LMD_CATEGORIES: Dict[str, set] = {
-    "positive": LMD_POSITIVE,
-    "negative": LMD_NEGATIVE,
-    "uncertainty": LMD_UNCERTAINTY,
-    "litigious": LMD_LITIGIOUS,
-}
+_DICTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dictionaries")
+
+
+def _load_bundled_dicts() -> Dict[str, Dict[str, Any]]:
+    registry: Dict[str, Dict[str, Any]] = {}
+    if not os.path.isdir(_DICTS_DIR):
+        return registry
+    for fname in os.listdir(_DICTS_DIR):
+        if not fname.endswith(".json"):
+            continue
+        path = os.path.join(_DICTS_DIR, fname)
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, ValueError):
+            continue
+        meta = data.get("_meta") or {}
+        dict_id = meta.get("id") or os.path.splitext(fname)[0]
+        categories: Dict[str, set] = {}
+        for k, v in data.items():
+            if k.startswith("_"):
+                continue
+            if isinstance(v, list):
+                categories[k] = {str(w).lower() for w in v}
+        registry[dict_id] = {"meta": meta, "categories": categories}
+    return registry
+
+
+BUNDLED_DICTS: Dict[str, Dict[str, Any]] = _load_bundled_dicts()
 
 
 _WORD_RE = regex_lib.compile(r"\p{L}+(?:'\p{L}+)?", regex_lib.UNICODE)
@@ -182,20 +174,29 @@ def score_documents(
     documents: List[Dict[str, str]],
     user_dictionary: Dict[str, List[str]] | None = None,
 ) -> Dict[str, Any]:
-    if method == "lmd":
-        categories: Dict[str, set] = LMD_CATEGORIES
-    elif method == "custom_dict":
-        if not user_dictionary:
-            raise ValueError("custom_dict method requires a `dictionary` payload")
-        categories = _compile_dict(user_dictionary)
-    elif method == "liwc":
+    meta: Dict[str, Any] = {}
+    if method == "custom_dict" or method == "liwc":
         if not user_dictionary:
             raise ValueError(
-                "liwc method requires a user-supplied dictionary — upload your licensed LIWC file."
+                f"{method} method requires a `dictionary` payload — upload your dictionary via the run panel."
             )
-        categories = _compile_dict(user_dictionary)
+        categories: Dict[str, set] = _compile_dict(user_dictionary)
+        meta = {
+            "id": method,
+            "name": "User-uploaded dictionary",
+            "categories": sorted(categories.keys()),
+            "primaryCategory": None,
+        }
+    elif method in BUNDLED_DICTS:
+        entry = BUNDLED_DICTS[method]
+        categories = entry["categories"]
+        meta = dict(entry["meta"])
+        # ensure categories list reflects what's actually bundled
+        meta["categories"] = sorted(categories.keys())
     else:
-        raise ValueError(f"Unknown method: {method}")
+        raise ValueError(
+            f"Unknown method: {method}. Known: {sorted(list(BUNDLED_DICTS.keys()) + ['liwc', 'custom_dict'])}"
+        )
 
     scores: List[Dict[str, Any]] = []
     for doc in documents:
@@ -209,21 +210,17 @@ def score_documents(
             for cat, lex in categories.items():
                 if tok in lex:
                     counts[cat] += 1
-        net = None
-        if "positive" in counts and "negative" in counts:
-            denom = max(1, len(tokens))
-            net = (counts["positive"] - counts["negative"]) / denom
         scores.append(
             {
                 "id": doc_id,
                 "categoryCounts": counts,
                 "tokenCount": len(tokens),
-                "score": net,
             }
         )
 
     return {
         "method": method,
+        "meta": meta,
         "scores": scores,
         "summary": {
             "docCount": len(scores),
