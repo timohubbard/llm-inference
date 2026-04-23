@@ -138,7 +138,7 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
     <div className="mt-6 space-y-6">
       {!docs ? (
         <p className="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm">
-          Load a corpus first on the Corpus tab.
+          Load a corpus first on Step 2 — Corpus.
         </p>
       ) : null}
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 interface Construct {
@@ -162,7 +163,11 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
     <div className="mt-6 space-y-8">
       {!docs ? (
         <p className="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm">
-          No documents loaded into this browser session. Revisit the Corpus tab and load the demo or upload a file.
+          No documents loaded into this browser session. Revisit{" "}
+          <Link href={`/projects/${projectId}/corpus`} className="underline">
+            Step 2 — Corpus
+          </Link>{" "}
+          and load the demo or upload a file.
         </p>
       ) : (
         <p className="text-sm text-muted-foreground">
@@ -282,8 +287,15 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
 
         {phase === "done" ? (
           <div className="mt-6 rounded bg-muted p-3 text-sm">
-            Done — {fullScores.length} documents scored. Head to the Deviation tab to triangulate against the
-            dictionary measure.
+            Done — {fullScores.length} documents scored. Open the{" "}
+            <Link href={`/projects/${projectId}/deviation`} className="underline">
+              deviation view
+            </Link>{" "}
+            to triangulate against the dictionary measure, or continue to{" "}
+            <Link href={`/projects/${projectId}/macro`} className="underline">
+              Step 5 — LLM macro-inference
+            </Link>
+            .
           </div>
         ) : null}
       </section>
