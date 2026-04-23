@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { markSessionStepDone } from "@/lib/steps";
 import { resolveCanonicalScores } from "@/lib/llm-runs";
@@ -223,11 +224,37 @@ export function IntegrationView({ projectId }: { projectId: string }) {
             {" "}llm non-null: {llm ? llm.filter((r) => r.score !== null).length : 0} ·
             {" "}outcome: {Object.keys(outcomeRows).length}).
           </div>
-          {dict && llm && Object.keys(outcomeRows).length > 0 && joined.length === 0 ? (
+          {(dict?.length ?? 0) === 0 ? (
             <div className="mt-2 rounded border border-amber-500/40 bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-              <b>No overlapping IDs.</b> Check that the dictionary, LLM, and outcome CSV share the same
-              document IDs. Examples: dict={dict.slice(0, 2).map((r) => r.id).join(", ") || "—"};
-              {" "}llm={llm.slice(0, 2).map((r) => r.id).join(", ") || "—"};
+              <b>Dictionary scores aren&apos;t in this browser session.</b> Per-document scores live
+              only in the browser (nothing is persisted server-side), so a previous tab&apos;s run
+              doesn&apos;t carry over. Go back to{" "}
+              <Link href={`/projects/${projectId}/run`} className="underline">
+                Step 3/4 — Run
+              </Link>{" "}
+              and click <b>Run dictionary scoring</b>, then return here.
+            </div>
+          ) : null}
+          {(llm?.length ?? 0) === 0 ? (
+            <div className="mt-2 rounded border border-amber-500/40 bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+              <b>LLM scores aren&apos;t in this browser session.</b> Go back to{" "}
+              <Link href={`/projects/${projectId}/run`} className="underline">
+                Step 3/4 — Run
+              </Link>{" "}
+              and run the full-corpus LLM pass.
+            </div>
+          ) : llm && llm.every((r) => r.score === null) ? (
+            <div className="mt-2 rounded border border-destructive/40 bg-destructive/10 p-2 text-xs">
+              <b>Every LLM score is null.</b> The last LLM run failed for every document — check for
+              provider errors in Step 4 (e.g. &quot;temperature deprecated&quot; on Opus 4.7) and
+              re-run.
+            </div>
+          ) : null}
+          {(dict?.length ?? 0) > 0 && (llm?.length ?? 0) > 0 && Object.keys(outcomeRows).length > 0 && joined.length === 0 ? (
+            <div className="mt-2 rounded border border-amber-500/40 bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+              <b>No overlapping IDs.</b> Check that the dictionary, LLM, and outcome CSV share the
+              same document IDs. Examples: dict={dict!.slice(0, 2).map((r) => r.id).join(", ") || "—"};
+              {" "}llm={llm!.slice(0, 2).map((r) => r.id).join(", ") || "—"};
               {" "}outcome={Object.keys(outcomeRows).slice(0, 2).join(", ") || "—"}.
             </div>
           ) : null}
