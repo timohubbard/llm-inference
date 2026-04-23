@@ -10,10 +10,25 @@ import { StepCompleteBanner } from "@/components/step-complete-banner";
 // real analyses should use outcomes justified by the research question.
 const BUFFETT_DEMO_OUTCOME_CSV = `id,bv_growth_next_year
 brk-1977,0.198
+brk-1981,0.314
 brk-1985,0.487
-brk-1999,0.065
-brk-2008,0.196
-brk-2019,0.024`;
+brk-1989,0.444
+brk-1993,0.143
+brk-1996,0.318
+brk-1999,0.005
+brk-2001,-0.062
+brk-2003,0.210
+brk-2005,0.064
+brk-2007,0.110
+brk-2008,-0.096
+brk-2010,0.130
+brk-2012,0.144
+brk-2014,0.083
+brk-2016,0.107
+brk-2017,0.230
+brk-2019,0.110
+brk-2021,0.189
+brk-2022,-0.040`;
 
 type Coef = { estimate: number; se: number; tValue: number; pValue: number };
 type DroppedCol = { name: string; reason: string };
@@ -239,7 +254,7 @@ export function IntegrationView({ projectId }: { projectId: string }) {
       </section>
 
       {primaryResult || llmResult || combinedResult ? (
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <ResultCard title="Primary (dictionary)" result={primaryResult} />
           <ResultCard title="LLM-only" result={llmResult} />
           <ResultCard title="Combined" result={combinedResult} />
@@ -258,37 +273,48 @@ function ResultCard({ title, result }: { title: string; result: RegressionResult
   return (
     <div className="rounded-lg border p-4 text-sm">
       <div className="font-medium">{title}</div>
-      <div className="mt-1 text-xs text-muted-foreground">
-        n = {result.fit.n}
-        {result.fit.rSquared !== undefined ? ` · R² = ${result.fit.rSquared.toFixed(3)}` : ""}
-        {result.fit.adjRSquared !== undefined ? ` · adj-R² = ${result.fit.adjRSquared.toFixed(3)}` : ""}
-        {result.fit.aic !== undefined ? ` · AIC = ${result.fit.aic.toFixed(1)}` : ""}
+      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+        <span>n = {result.fit.n}</span>
+        {result.fit.rSquared !== undefined ? <span>R² = {result.fit.rSquared.toFixed(3)}</span> : null}
+        {result.fit.adjRSquared !== undefined ? <span>adj-R² = {result.fit.adjRSquared.toFixed(3)}</span> : null}
+        {result.fit.aic !== undefined ? <span>AIC = {result.fit.aic.toFixed(1)}</span> : null}
       </div>
       {result.droppedColumns && result.droppedColumns.length > 0 ? (
-        <div className="mt-2 rounded border border-amber-500/40 bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-          Dropped: {result.droppedColumns.map((d) => `${d.name} (${d.reason})`).join("; ")}
-        </div>
+        <details className="mt-2 rounded border border-amber-500/40 bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+          <summary className="cursor-pointer font-medium">
+            Dropped {result.droppedColumns.length} covariate{result.droppedColumns.length === 1 ? "" : "s"}
+          </summary>
+          <ul className="mt-1.5 space-y-0.5 pl-1">
+            {result.droppedColumns.map((d) => (
+              <li key={d.name}>
+                <span className="font-mono break-all">{d.name}</span>
+                <span className="text-amber-700 dark:text-amber-300"> — {d.reason}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
       ) : null}
-      <table className="mt-3 w-full text-xs">
-        <thead>
-          <tr className="text-left text-muted-foreground">
-            <th className="py-1">term</th>
-            <th className="py-1 text-right">β</th>
-            <th className="py-1 text-right">SE</th>
-            <th className="py-1 text-right">p</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(result.coefficients).map(([term, c]) => (
-            <tr key={term} className="border-t">
-              <td className="py-1 font-mono">{term}</td>
-              <td className="py-1 text-right">{c.estimate.toFixed(3)}</td>
-              <td className="py-1 text-right">{c.se.toFixed(3)}</td>
-              <td className="py-1 text-right">{formatP(c.pValue)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ul className="mt-3 divide-y rounded border">
+        {Object.entries(result.coefficients).map(([term, c]) => {
+          const sig = c.pValue < 0.01 ? "**" : c.pValue < 0.05 ? "*" : c.pValue < 0.1 ? "†" : "";
+          return (
+            <li key={term} className="p-2">
+              <div className="font-mono text-xs break-all">{term}</div>
+              <div className="mt-0.5 flex flex-wrap gap-x-3 text-xs tabular-nums text-muted-foreground">
+                <span>
+                  <span className="text-foreground">β</span> {c.estimate.toFixed(3)}
+                </span>
+                <span>SE {c.se.toFixed(3)}</span>
+                <span>
+                  p {formatP(c.pValue)}
+                  {sig ? <span className="ml-0.5 text-foreground">{sig}</span> : null}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="mt-2 text-[10px] text-muted-foreground">** p&lt;0.01 &nbsp;·&nbsp; * p&lt;0.05 &nbsp;·&nbsp; † p&lt;0.1</div>
     </div>
   );
 }

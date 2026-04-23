@@ -19,7 +19,7 @@ export default async function IntegratePage({ params }: { params: Promise<{ id: 
   if (!project) notFound();
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <main className="mx-auto max-w-6xl px-6 py-10">
       <h1 className="text-2xl font-semibold">Step 6 — Integration & combined regression</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Fit the primary (traditional) measure, the LLM measure, and a combined specification side-by-side. Per-document

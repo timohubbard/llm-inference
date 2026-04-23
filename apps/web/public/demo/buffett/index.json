@@ -4,9 +4,24 @@
   "license": "Publicly available corporate disclosure. Redistribution here is limited to sampled excerpts for demo purposes; full letters should be fetched from the primary source.",
   "documents": [
     { "id": "brk-1977", "file": "brk-1977.txt", "year": 1977 },
+    { "id": "brk-1981", "file": "brk-1981.txt", "year": 1981 },
     { "id": "brk-1985", "file": "brk-1985.txt", "year": 1985 },
+    { "id": "brk-1989", "file": "brk-1989.txt", "year": 1989 },
+    { "id": "brk-1993", "file": "brk-1993.txt", "year": 1993 },
+    { "id": "brk-1996", "file": "brk-1996.txt", "year": 1996 },
     { "id": "brk-1999", "file": "brk-1999.txt", "year": 1999 },
+    { "id": "brk-2001", "file": "brk-2001.txt", "year": 2001 },
+    { "id": "brk-2003", "file": "brk-2003.txt", "year": 2003 },
+    { "id": "brk-2005", "file": "brk-2005.txt", "year": 2005 },
+    { "id": "brk-2007", "file": "brk-2007.txt", "year": 2007 },
     { "id": "brk-2008", "file": "brk-2008.txt", "year": 2008 },
-    { "id": "brk-2019", "file": "brk-2019.txt", "year": 2019 }
+    { "id": "brk-2010", "file": "brk-2010.txt", "year": 2010 },
+    { "id": "brk-2012", "file": "brk-2012.txt", "year": 2012 },
+    { "id": "brk-2014", "file": "brk-2014.txt", "year": 2014 },
+    { "id": "brk-2016", "file": "brk-2016.txt", "year": 2016 },
+    { "id": "brk-2017", "file": "brk-2017.txt", "year": 2017 },
+    { "id": "brk-2019", "file": "brk-2019.txt", "year": 2019 },
+    { "id": "brk-2021", "file": "brk-2021.txt", "year": 2021 },
+    { "id": "brk-2022", "file": "brk-2022.txt", "year": 2022 }
   ]
 }
