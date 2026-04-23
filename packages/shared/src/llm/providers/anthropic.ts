@@ -85,16 +85,16 @@ export class AnthropicProvider implements LlmProvider {
     const started = Date.now();
 
     try {
-      const resp = await client.messages.create(
-        {
-          model: opts.model,
-          max_tokens: opts.maxTokens,
-          temperature: opts.temperature,
-          system: opts.system,
-          messages: opts.messages.map((m) => ({ role: m.role, content: m.content })),
-        },
-        { signal: opts.signal },
-      );
+      const body: Anthropic.MessageCreateParamsNonStreaming = {
+        model: opts.model,
+        max_tokens: opts.maxTokens,
+        system: opts.system,
+        messages: opts.messages.map((m) => ({ role: m.role, content: m.content })),
+      };
+      if (supportsTemperature(opts.model)) {
+        body.temperature = opts.temperature;
+      }
+      const resp = await client.messages.create(body, { signal: opts.signal });
 
       const textBlock = resp.content.find((b) => b.type === "text");
       const raw = textBlock && "text" in textBlock ? textBlock.text : "";
@@ -129,6 +129,12 @@ export class AnthropicProvider implements LlmProvider {
     return (inputTokens / 1_000_000) * info.inputCostPerMTok +
            (outputTokens / 1_000_000) * info.outputCostPerMTok;
   }
+}
+
+// Claude Opus 4.7+ rejects the `temperature` parameter. Omit it for models
+// that don't accept it; fall back to the provider's default sampling.
+function supportsTemperature(modelId: string): boolean {
+  return !/^claude-opus-4-7/.test(modelId);
 }
 
 function isAuthError(err: unknown): boolean {
