@@ -16,9 +16,11 @@ brk-2008,0.196
 brk-2019,0.024`;
 
 type Coef = { estimate: number; se: number; tValue: number; pValue: number };
+type DroppedCol = { name: string; reason: string };
 type RegressionResult = {
   coefficients: Record<string, Coef>;
   fit: { rSquared?: number; adjRSquared?: number; llf?: number; aic?: number; bic?: number; n: number };
+  droppedColumns?: DroppedCol[];
 };
 
 type ScoreRow = { id: string; score: number | null };
@@ -262,6 +264,11 @@ function ResultCard({ title, result }: { title: string; result: RegressionResult
         {result.fit.adjRSquared !== undefined ? ` · adj-R² = ${result.fit.adjRSquared.toFixed(3)}` : ""}
         {result.fit.aic !== undefined ? ` · AIC = ${result.fit.aic.toFixed(1)}` : ""}
       </div>
+      {result.droppedColumns && result.droppedColumns.length > 0 ? (
+        <div className="mt-2 rounded border border-amber-500/40 bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+          Dropped: {result.droppedColumns.map((d) => `${d.name} (${d.reason})`).join("; ")}
+        </div>
+      ) : null}
       <table className="mt-3 w-full text-xs">
         <thead>
           <tr className="text-left text-muted-foreground">

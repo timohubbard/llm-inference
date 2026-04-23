@@ -17,7 +17,7 @@ import numpy as np
 import regex as regex_lib
 
 
-SIDECAR_VERSION = "0.3.0"
+SIDECAR_VERSION = "0.3.1"
 
 
 # --- Statistical helpers (numpy + stdlib only) ---
@@ -288,7 +288,31 @@ def _parse_formula(
     return y, X, col_names, y_name
 
 
+def _prune_dependent_cols(
+    X: np.ndarray, names: List[str]
+) -> Tuple[np.ndarray, List[str], List[Dict[str, str]]]:
+    """Drop zero-variance non-intercept columns and any column that is
+    linearly dependent on the columns already kept. Returns the pruned
+    design matrix, the surviving column names, and a list describing
+    each dropped column so the caller can surface a warning."""
+    n, k = X.shape
+    kept: List[int] = []
+    dropped: List[Dict[str, str]] = []
+    for j in range(k):
+        col = X[:, j]
+        if names[j] != "Intercept" and float(np.std(col)) == 0.0:
+            dropped.append({"name": names[j], "reason": "constant (zero variance)"})
+            continue
+        trial = X[:, kept + [j]]
+        if np.linalg.matrix_rank(trial, tol=1e-8) < trial.shape[1]:
+            dropped.append({"name": names[j], "reason": "collinear with kept covariates"})
+            continue
+        kept.append(j)
+    return X[:, kept], [names[j] for j in kept], dropped
+
+
 def _fit_ols(y: np.ndarray, X: np.ndarray, names: List[str]) -> Dict[str, Any]:
+    X, names, dropped = _prune_dependent_cols(X, names)
     n, k = X.shape
     if n <= k:
         raise ValueError(f"Need n > k (n={n}, k={k}) for OLS")
@@ -334,10 +358,12 @@ def _fit_ols(y: np.ndarray, X: np.ndarray, names: List[str]) -> Dict[str, Any]:
             "n": int(n),
         },
         "residuals": resid.tolist(),
+        "droppedColumns": dropped,
     }
 
 
 def _fit_logit(y: np.ndarray, X: np.ndarray, names: List[str]) -> Dict[str, Any]:
+    X, names, dropped = _prune_dependent_cols(X, names)
     n, k = X.shape
     if n <= k:
         raise ValueError(f"Need n > k (n={n}, k={k}) for logit")
@@ -389,6 +415,7 @@ def _fit_logit(y: np.ndarray, X: np.ndarray, names: List[str]) -> Dict[str, Any]
             "bic": float(bic),
             "n": int(n),
         },
+        "droppedColumns": dropped,
     }
 
 
