@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { markSessionStepDone } from "@/lib/steps";
+import { StepCompleteBanner } from "@/components/step-complete-banner";
 
 interface Construct {
   id: string;
@@ -263,18 +263,11 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
       {err ? <p className="text-sm text-destructive">{err}</p> : null}
 
       {promoted.length > 0 ? (
-        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
-          <p className="text-sm">
-            <b>Step 5 complete.</b> {promoted.length} feature{promoted.length === 1 ? "" : "s"} promoted.
-            Promote more signals above, or continue when you&apos;re done.
-          </p>
-          <Link
-            href={`/projects/${projectId}/integrate`}
-            className="mt-3 inline-block rounded bg-primary px-3 py-1.5 text-sm text-primary-foreground"
-          >
-            Continue to Step 6 — Integration &amp; regression →
-          </Link>
-        </div>
+        <StepCompleteBanner
+          projectId={projectId}
+          currentKey="macro"
+          message={`Step 5 complete — ${promoted.length} feature${promoted.length === 1 ? "" : "s"} promoted. Promote more above, or continue when you're done.`}
+        />
       ) : null}
     </div>
   );

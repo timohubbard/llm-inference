@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { DeviationView } from "@/app/projects/[id]/deviation/deviation-view";
+import { StepCompleteBanner } from "@/components/step-complete-banner";
 
 interface Construct {
   id: string;
@@ -302,13 +303,11 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
             rationales earn their keep.
           </p>
           <DeviationView projectId={projectId} />
-          <div className="mt-4 rounded border border-primary/30 bg-primary/5 p-3 text-sm">
-            Ready to move on?{" "}
-            <Link href={`/projects/${projectId}/macro`} className="font-medium underline">
-              Continue to Step 5 — LLM macro-inference →
-            </Link>
-          </div>
         </section>
+      ) : null}
+
+      {phase === "done" ? (
+        <StepCompleteBanner projectId={projectId} currentKey="llm" />
       ) : null}
 
       {err ? <p className="text-sm text-destructive">{err}</p> : null}

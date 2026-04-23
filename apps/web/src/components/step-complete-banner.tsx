@@ -1,71 +1,45 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { STEPS, stepHref, type StepKey } from "@/lib/steps";
 
 /**
- * Shown when a step has just been marked complete. Displays a green confirmation
- * and auto-advances to the next step after `delayMs`. User can cancel or click
- * "Continue now" to jump immediately.
+ * Shown at the bottom of a step once it's been marked complete. Confirms the
+ * step is done and offers an explicit button to move to the next step. Does
+ * NOT auto-advance — the user decides when to move on.
  */
 export function StepCompleteBanner({
   projectId,
   currentKey,
-  delayMs = 2500,
+  message,
 }: {
   projectId: string;
   currentKey: StepKey;
-  delayMs?: number;
+  message?: string;
 }) {
-  const router = useRouter();
-  const [cancelled, setCancelled] = useState(false);
-
   const idx = STEPS.findIndex((s) => s.key === currentKey);
+  const current = idx >= 0 ? STEPS[idx] : null;
   const next = idx >= 0 && idx < STEPS.length - 1 ? STEPS[idx + 1] : null;
   const nextHref = next ? stepHref(projectId, next.slug) : null;
 
-  useEffect(() => {
-    if (cancelled || !nextHref) return;
-    const t = setTimeout(() => router.push(nextHref), delayMs);
-    return () => clearTimeout(t);
-  }, [cancelled, nextHref, delayMs, router]);
-
-  if (!next || !nextHref) {
-    return (
-      <div className="mt-6 flex items-center gap-2 rounded-md border border-green-600/30 bg-green-50 p-3 text-sm text-green-900 dark:bg-green-950/30 dark:text-green-200">
-        <CheckIcon />
-        <span>All steps complete.</span>
-      </div>
-    );
-  }
+  const label = message ?? (current ? `Step ${current.n} complete.` : "Step complete.");
 
   return (
     <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-md border border-green-600/30 bg-green-50 p-3 text-sm text-green-900 dark:bg-green-950/30 dark:text-green-200">
       <div className="flex items-center gap-2">
         <CheckIcon />
-        <span>
-          Step complete. Continuing to Step {next.n} — {next.label}
-          {cancelled ? " (paused)" : "…"}
-        </span>
+        <span>{label}</span>
       </div>
-      <div className="flex items-center gap-2">
-        {!cancelled ? (
-          <button
-            onClick={() => setCancelled(true)}
-            className="rounded border border-green-700/40 px-2 py-1 text-xs hover:bg-green-100 dark:hover:bg-green-900/40"
-          >
-            Stay here
-          </button>
-        ) : null}
+      {next && nextHref ? (
         <Link
           href={nextHref}
-          className="rounded bg-green-700 px-3 py-1 text-xs font-medium text-white hover:bg-green-800"
+          className="rounded bg-green-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-800"
         >
-          Continue now →
+          Continue to Step {next.n} — {next.label} →
         </Link>
-      </div>
+      ) : (
+        <span className="text-xs">All steps complete.</span>
+      )}
     </div>
   );
 }
