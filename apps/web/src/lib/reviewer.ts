@@ -1,8 +1,7 @@
 import { Redis } from "@upstash/redis";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 
-const REVIEWER_FLAG = "reviewerMode";
-const SESSION_ID_KEY = "reviewerSessionId";
+const COOKIE_NAME = "reviewer_sid";
 
 export class ReviewerBudgetExhausted extends Error {
   constructor(public readonly spentUsd: number, public readonly capUsd: number) {
@@ -43,26 +42,40 @@ export function getReviewerKey(provider: ReviewerProviderId): string | null {
   return key || null;
 }
 
-export async function startReviewerSession(userId: string): Promise<string> {
+export async function startReviewerSession(): Promise<string> {
   const sessionId = crypto.randomUUID();
-  const client = await clerkClient();
-  await client.users.updateUserMetadata(userId, {
-    publicMetadata: { [REVIEWER_FLAG]: true, [SESSION_ID_KEY]: sessionId },
-  });
+  const cfg = reviewerConfig();
   const redis = getRedis();
   if (redis) {
+    await redis.set(`reviewer:${sessionId}:meta`, { createdAt: Date.now() }, {
+      ex: cfg.ttlSeconds,
+    });
     await redis.set(`reviewer:${sessionId}:spent_cents`, 0, {
-      ex: reviewerConfig().ttlSeconds,
+      ex: cfg.ttlSeconds,
     });
   }
+  const jar = await cookies();
+  jar.set(COOKIE_NAME, sessionId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: cfg.ttlSeconds,
+  });
   return sessionId;
 }
 
-export async function endReviewerSession(userId: string): Promise<void> {
-  const client = await clerkClient();
-  await client.users.updateUserMetadata(userId, {
-    publicMetadata: { [REVIEWER_FLAG]: false, [SESSION_ID_KEY]: null },
-  });
+export async function endReviewerSession(): Promise<void> {
+  const jar = await cookies();
+  const existing = jar.get(COOKIE_NAME)?.value;
+  if (existing) {
+    const redis = getRedis();
+    if (redis) {
+      await redis.del(`reviewer:${existing}:meta`);
+      await redis.del(`reviewer:${existing}:spent_cents`);
+    }
+    jar.delete(COOKIE_NAME);
+  }
 }
 
 export async function currentReviewerSession(): Promise<
@@ -75,18 +88,23 @@ export async function currentReviewerSession(): Promise<
       availableProviders: ReviewerProviderId[];
     }
 > {
-  const { userId, sessionClaims } = await auth();
-  if (!userId) return { active: false };
-  const meta = (sessionClaims?.publicMetadata ?? {}) as Record<string, unknown>;
-  if (!meta[REVIEWER_FLAG] || typeof meta[SESSION_ID_KEY] !== "string") {
-    return { active: false };
-  }
-  const sessionId = meta[SESSION_ID_KEY];
+  const jar = await cookies();
+  const sessionId = jar.get(COOKIE_NAME)?.value;
+  if (!sessionId) return { active: false };
   const cfg = reviewerConfig();
   const redis = getRedis();
-  const cents = redis
-    ? Number((await redis.get<number>(`reviewer:${sessionId}:spent_cents`)) ?? 0)
-    : 0;
+  if (!redis) {
+    return {
+      active: true,
+      sessionId,
+      spentUsd: 0,
+      capUsd: cfg.capUsd,
+      availableProviders: cfg.availableProviders,
+    };
+  }
+  const meta = await redis.get(`reviewer:${sessionId}:meta`);
+  if (!meta) return { active: false };
+  const cents = Number((await redis.get<number>(`reviewer:${sessionId}:spent_cents`)) ?? 0);
   return {
     active: true,
     sessionId,

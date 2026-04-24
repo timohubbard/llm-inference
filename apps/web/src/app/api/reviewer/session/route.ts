@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
-import { reviewerConfig, startReviewerSession, endReviewerSession, currentReviewerSession } from "@/lib/reviewer";
+import {
+  reviewerConfig,
+  startReviewerSession,
+  endReviewerSession,
+  currentReviewerSession,
+} from "@/lib/reviewer";
 
 const body = z.object({ password: z.string().min(1) });
 
@@ -11,9 +15,6 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const parsed = body.safeParse(await req.json());
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
@@ -21,7 +22,10 @@ export async function POST(req: Request) {
 
   const cfg = reviewerConfig();
   if (!cfg.password) {
-    return NextResponse.json({ error: "Reviewer access is not configured on this deployment." }, { status: 503 });
+    return NextResponse.json(
+      { error: "Reviewer access is not configured on this deployment." },
+      { status: 503 },
+    );
   }
   if (parsed.data.password !== cfg.password) {
     return NextResponse.json({ error: "Incorrect password." }, { status: 401 });
@@ -36,7 +40,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const sessionId = await startReviewerSession(userId);
+  const sessionId = await startReviewerSession();
   return NextResponse.json({
     sessionId,
     capUsd: cfg.capUsd,
@@ -45,8 +49,6 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE() {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  await endReviewerSession(userId);
+  await endReviewerSession();
   return NextResponse.json({ ok: true });
 }

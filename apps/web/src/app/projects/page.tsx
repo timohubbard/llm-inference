@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { currentActor } from "@/lib/actor";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
@@ -10,13 +10,13 @@ import { NewProjectForm } from "./new-project-form";
 export const dynamic = "force-dynamic";
 
 export default async function ProjectsPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  const actor = await currentActor();
+  if (!actor) redirect("/");
 
   const rows = await db()
     .select()
     .from(projects)
-    .where(eq(projects.ownerId, userId))
+    .where(eq(projects.ownerId, actor.id))
     .orderBy(desc(projects.createdAt));
 
   return (

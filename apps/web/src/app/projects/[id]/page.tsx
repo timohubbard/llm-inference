@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { currentActor } from "@/lib/actor";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { and, eq } from "drizzle-orm";
@@ -10,11 +10,11 @@ export const dynamic = "force-dynamic";
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  const actor = await currentActor();
+  if (!actor) redirect("/");
 
   const project = (
-    await db().select().from(projects).where(and(eq(projects.id, id), eq(projects.ownerId, userId)))
+    await db().select().from(projects).where(and(eq(projects.id, id), eq(projects.ownerId, actor.id)))
   )[0];
   if (!project) notFound();
 

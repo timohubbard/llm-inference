@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
+import { ReviewerBadge } from "./reviewer-badge";
 
 export function AppNav({ projectId: _projectId }: { projectId?: string } = {}) {
   return (
@@ -8,7 +9,10 @@ export function AppNav({ projectId: _projectId }: { projectId?: string } = {}) {
         <Link href="/projects" className="font-semibold">
           LLM Inference Tool
         </Link>
-        <UserButton />
+        <div className="flex items-center gap-4">
+          <ReviewerBadge />
+          <UserButton />
+        </div>
       </div>
     </header>
   );

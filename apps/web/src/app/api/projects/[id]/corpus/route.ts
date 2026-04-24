@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { currentActor } from "@/lib/actor";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
@@ -14,14 +14,14 @@ const body = z.object({
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: projectId } = await params;
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const actor = await currentActor();
+  if (!actor) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const owned = (
     await db()
       .select({ id: projects.id })
       .from(projects)
-      .where(and(eq(projects.id, projectId), eq(projects.ownerId, userId)))
+      .where(and(eq(projects.id, projectId), eq(projects.ownerId, actor.id)))
   )[0];
   if (!owned) return NextResponse.json({ error: "not found" }, { status: 404 });
 

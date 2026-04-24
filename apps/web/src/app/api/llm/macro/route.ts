@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { currentActor } from "@/lib/actor";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -30,8 +30,8 @@ const body = z.object({
 });
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const actor = await currentActor();
+  if (!actor) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const parsed = body.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: parsed.error.message }, { status: 400 });
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     await db()
       .select({ id: projects.id })
       .from(projects)
-      .where(and(eq(projects.id, parsed.data.projectId), eq(projects.ownerId, userId)))
+      .where(and(eq(projects.id, parsed.data.projectId), eq(projects.ownerId, actor.id)))
   )[0];
   if (!owned) return NextResponse.json({ error: "not found" }, { status: 404 });
 

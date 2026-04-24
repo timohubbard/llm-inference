@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { currentActor } from "@/lib/actor";
 import { z } from "zod";
 import { scoreDictionary } from "@/lib/sidecar";
 
@@ -40,8 +40,8 @@ function computePrimary(
 }
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const actor = await currentActor();
+  if (!actor) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const parsed = body.safeParse(await req.json());
   if (!parsed.success) {

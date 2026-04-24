@@ -1,20 +1,10 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-const isProtected = createRouteMatcher([
-  "/projects(.*)",
-  "/reviewer(.*)",
-  "/api/llm(.*)",
-  "/api/providers(.*)",
-  "/api/traditional(.*)",
-  "/api/projects(.*)",
-  "/api/reviewer/session(.*)",
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtected(req)) {
-    await auth.protect();
-  }
-});
+// clerkMiddleware runs on every request so `auth()` works inside server components
+// and route handlers, but no routes are force-protected here — authorization is
+// handled inside each route/page via `currentActor()`, which accepts either a
+// Clerk signed-in user OR an anonymous reviewer cookie session.
+export default clerkMiddleware();
 
 export const config = {
   matcher: [

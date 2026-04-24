@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { currentActor } from "@/lib/actor";
 import { z } from "zod";
 import { db } from "@/db/client";
 import { projects } from "@/db/schema";
@@ -11,8 +11,8 @@ const body = z.object({
 });
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const actor = await currentActor();
+  if (!actor) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const parsed = body.safeParse(await req.json());
   if (!parsed.success) {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const [row] = await db()
     .insert(projects)
     .values({
-      ownerId: userId,
+      ownerId: actor.id,
       name: parsed.data.name,
       researchQuestion: parsed.data.researchQuestion ?? null,
       unitOfAnalysis: parsed.data.seedDemo ? "shareholder letter × fiscal year" : null,
