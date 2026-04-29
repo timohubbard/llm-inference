@@ -13,8 +13,13 @@ export class ReviewerBudgetExhausted extends Error {
 let redisCache: Redis | null = null;
 function getRedis(): Redis | null {
   if (redisCache) return redisCache;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Accept either the legacy Upstash names or the names Vercel's Marketplace
+  // integration injects (KV_REST_API_URL / KV_REST_API_TOKEN — backed by
+  // Upstash under the hood).
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? "";
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN ?? "";
   if (!url || !token) return null;
   redisCache = new Redis({ url, token });
   return redisCache;
@@ -48,7 +53,7 @@ export async function startReviewerSession(): Promise<string> {
   const redis = getRedis();
   if (!redis) {
     throw new Error(
-      "Upstash Redis is not configured on this deployment, but the reviewer spend cap requires it. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN (free tier via the Vercel Marketplace → Upstash integration).",
+      "Upstash Redis is not configured on this deployment, but the reviewer spend cap requires it. Set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN (or KV_REST_API_URL + KV_REST_API_TOKEN) — free tier via the Vercel Marketplace → Upstash integration.",
     );
   }
   await redis.set(`reviewer:${sessionId}:meta`, { createdAt: Date.now() }, {
