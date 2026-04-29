@@ -46,14 +46,17 @@ export async function startReviewerSession(): Promise<string> {
   const sessionId = crypto.randomUUID();
   const cfg = reviewerConfig();
   const redis = getRedis();
-  if (redis) {
-    await redis.set(`reviewer:${sessionId}:meta`, { createdAt: Date.now() }, {
-      ex: cfg.ttlSeconds,
-    });
-    await redis.set(`reviewer:${sessionId}:spent_cents`, 0, {
-      ex: cfg.ttlSeconds,
-    });
+  if (!redis) {
+    throw new Error(
+      "Upstash Redis is not configured on this deployment, but the reviewer spend cap requires it. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN (free tier via the Vercel Marketplace → Upstash integration).",
+    );
   }
+  await redis.set(`reviewer:${sessionId}:meta`, { createdAt: Date.now() }, {
+    ex: cfg.ttlSeconds,
+  });
+  await redis.set(`reviewer:${sessionId}:spent_cents`, 0, {
+    ex: cfg.ttlSeconds,
+  });
   const jar = await cookies();
   jar.set(COOKIE_NAME, sessionId, {
     httpOnly: true,
@@ -94,13 +97,10 @@ export async function currentReviewerSession(): Promise<
   const cfg = reviewerConfig();
   const redis = getRedis();
   if (!redis) {
-    return {
-      active: true,
-      sessionId,
-      spentUsd: 0,
-      capUsd: cfg.capUsd,
-      availableProviders: cfg.availableProviders,
-    };
+    // No Redis = no spend tracking, so a "session" cookie alone isn't enough
+    // to grant access. The activate-route would have refused to set the
+    // cookie in the first place; if one is present, treat it as stale.
+    return { active: false };
   }
   const meta = await redis.get(`reviewer:${sessionId}:meta`);
   if (!meta) return { active: false };

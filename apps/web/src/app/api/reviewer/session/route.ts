@@ -40,12 +40,19 @@ export async function POST(req: Request) {
     );
   }
 
-  const sessionId = await startReviewerSession();
-  return NextResponse.json({
-    sessionId,
-    capUsd: cfg.capUsd,
-    availableProviders: cfg.availableProviders,
-  });
+  try {
+    const sessionId = await startReviewerSession();
+    return NextResponse.json({
+      sessionId,
+      capUsd: cfg.capUsd,
+      availableProviders: cfg.availableProviders,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : String(err) },
+      { status: 503 },
+    );
+  }
 }
 
 export async function DELETE() {

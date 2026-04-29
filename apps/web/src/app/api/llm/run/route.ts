@@ -105,13 +105,19 @@ export async function POST(req: Request) {
             try {
               await reserveReviewerSpend(key.sessionId, est);
             } catch (err) {
-              if (err instanceof ReviewerBudgetExhausted) {
-                controller.enqueue(encoder.encode(JSON.stringify({
-                  id: doc.id, score: null, rationale: "", error: err.message,
-                }) + "\n"));
-                break;
-              }
-              throw err;
+              // Surface the error inline so the client sees what went wrong
+              // (missing Upstash config, budget exhausted, etc.) — never silently
+              // close the stream.
+              const msg =
+                err instanceof ReviewerBudgetExhausted
+                  ? err.message
+                  : err instanceof Error
+                    ? `reviewer-spend-check failed: ${err.message}`
+                    : `reviewer-spend-check failed: ${String(err)}`;
+              controller.enqueue(encoder.encode(JSON.stringify({
+                id: doc.id, score: null, rationale: "", error: msg,
+              }) + "\n"));
+              break;
             }
           }
 
