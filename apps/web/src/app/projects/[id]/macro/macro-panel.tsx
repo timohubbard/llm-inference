@@ -33,7 +33,7 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
   const [docs, setDocs] = useState<Doc[] | null>(null);
   const [provider, setProvider] = useState<"anthropic" | "openai" | "google">("anthropic");
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("claude-sonnet-4-6");
+  const [model, setModel] = useState("");
   const [models, setModels] = useState<Array<{ id: string; displayName: string }>>([]);
   const [modelsBusy, setModelsBusy] = useState(false);
   const [outcomeVariable, setOutcomeVariable] = useState("");

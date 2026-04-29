@@ -81,8 +81,8 @@ function emptySlot(): ModelRunState {
 
 export function RunPanel({ projectId, construct, corpus }: { projectId: string; construct: Construct; corpus: Corpus }) {
   const [docs, setDocs] = useState<Doc[] | null>(null);
-  const [slotA, setSlotA] = useState<ModelRunState>(() => ({ ...emptySlot(), model: "claude-sonnet-4-6" }));
-  const [slotB, setSlotB] = useState<ModelRunState>(() => ({ ...emptySlot(), model: "" }));
+  const [slotA, setSlotA] = useState<ModelRunState>(() => emptySlot());
+  const [slotB, setSlotB] = useState<ModelRunState>(() => emptySlot());
   const [useSecondModel, setUseSecondModel] = useState(false);
   const [sampleSize, setSampleSize] = useState(5);
 

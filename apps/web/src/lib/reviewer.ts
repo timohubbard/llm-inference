@@ -3,9 +3,22 @@ import { cookies } from "next/headers";
 
 const COOKIE_NAME = "reviewer_sid";
 
+// Two-day TTL on daily-budget keys gives a comfortable read window across the
+// UTC midnight rollover so we never look up a key that's expired between the
+// cap check and the response.
+const DAILY_BUDGET_TTL_SECONDS = 60 * 60 * 48;
+
 export class ReviewerBudgetExhausted extends Error {
-  constructor(public readonly spentUsd: number, public readonly capUsd: number) {
-    super(`Reviewer spend cap reached ($${spentUsd.toFixed(2)} / $${capUsd.toFixed(2)}).`);
+  constructor(
+    public readonly spentUsd: number,
+    public readonly capUsd: number,
+    public readonly scope: "session" | "daily" = "session",
+  ) {
+    super(
+      scope === "daily"
+        ? `Deployment-wide reviewer budget for today reached ($${spentUsd.toFixed(2)} / $${capUsd.toFixed(2)} USD). The daily budget refreshes at UTC midnight.`
+        : `Per-session reviewer spend cap reached ($${spentUsd.toFixed(2)} / $${capUsd.toFixed(2)}).`,
+    );
     this.name = "ReviewerBudgetExhausted";
   }
 }
@@ -38,6 +51,7 @@ export function reviewerConfig() {
     apiKeys,
     availableProviders: (Object.keys(apiKeys) as ReviewerProviderId[]).filter((p) => apiKeys[p]),
     capUsd: Number(process.env.REVIEWER_SPEND_CAP_USD ?? "2"),
+    dailyBudgetUsd: Number(process.env.REVIEWER_DAILY_BUDGET_USD ?? "20"),
     ttlSeconds: Number(process.env.REVIEWER_SESSION_TTL_DAYS ?? "7") * 24 * 60 * 60,
   };
 }
@@ -45,6 +59,15 @@ export function reviewerConfig() {
 export function getReviewerKey(provider: ReviewerProviderId): string | null {
   const key = reviewerConfig().apiKeys[provider];
   return key || null;
+}
+
+function utcDateKey(): string {
+  // YYYY-MM-DD in UTC; budget rolls over at UTC midnight.
+  return new Date().toISOString().slice(0, 10);
+}
+
+function dailyBudgetKey(): string {
+  return `reviewer:daily:${utcDateKey()}:spent_cents`;
 }
 
 export async function startReviewerSession(): Promise<string> {
@@ -86,16 +109,19 @@ export async function endReviewerSession(): Promise<void> {
   }
 }
 
-export async function currentReviewerSession(): Promise<
-  | { active: false }
-  | {
-      active: true;
-      sessionId: string;
-      spentUsd: number;
-      capUsd: number;
-      availableProviders: ReviewerProviderId[];
-    }
-> {
+export interface ActiveReviewerSession {
+  active: true;
+  sessionId: string;
+  spentUsd: number;
+  capUsd: number;
+  dailySpentUsd: number;
+  dailyCapUsd: number;
+  availableProviders: ReviewerProviderId[];
+}
+
+export type ReviewerSessionState = { active: false } | ActiveReviewerSession;
+
+export async function currentReviewerSession(): Promise<ReviewerSessionState> {
   const jar = await cookies();
   const sessionId = jar.get(COOKIE_NAME)?.value;
   if (!sessionId) return { active: false };
@@ -109,27 +135,63 @@ export async function currentReviewerSession(): Promise<
   }
   const meta = await redis.get(`reviewer:${sessionId}:meta`);
   if (!meta) return { active: false };
-  const cents = Number((await redis.get<number>(`reviewer:${sessionId}:spent_cents`)) ?? 0);
+  const sessionCents = Number(
+    (await redis.get<number>(`reviewer:${sessionId}:spent_cents`)) ?? 0,
+  );
+  const dailyCents = Number((await redis.get<number>(dailyBudgetKey())) ?? 0);
   return {
     active: true,
     sessionId,
-    spentUsd: cents / 100,
+    spentUsd: sessionCents / 100,
     capUsd: cfg.capUsd,
+    dailySpentUsd: dailyCents / 100,
+    dailyCapUsd: cfg.dailyBudgetUsd,
     availableProviders: cfg.availableProviders,
   };
 }
 
+/**
+ * Reserve `estCostUsd` against BOTH the per-session cap and the deployment-wide
+ * daily budget. If either would be exceeded, the increments are rolled back
+ * and a ReviewerBudgetExhausted is thrown identifying which scope tripped.
+ */
 export async function reserveReviewerSpend(sessionId: string, estCostUsd: number): Promise<void> {
   const redis = getRedis();
-  const cap = reviewerConfig().capUsd;
   if (!redis) {
     throw new Error("Upstash Redis is not configured; reviewer flow requires it.");
   }
+  const cfg = reviewerConfig();
   const cents = Math.ceil(estCostUsd * 100);
-  const key = `reviewer:${sessionId}:spent_cents`;
-  const newTotal = (await redis.incrby(key, cents)) as number;
-  if (newTotal > cap * 100) {
-    await redis.decrby(key, cents);
-    throw new ReviewerBudgetExhausted(newTotal / 100, cap);
+  const sessionKey = `reviewer:${sessionId}:spent_cents`;
+  const dailyKey = dailyBudgetKey();
+
+  const newSession = (await redis.incrby(sessionKey, cents)) as number;
+  if (newSession > cfg.capUsd * 100) {
+    await redis.decrby(sessionKey, cents);
+    throw new ReviewerBudgetExhausted(newSession / 100, cfg.capUsd, "session");
   }
+
+  const newDaily = (await redis.incrby(dailyKey, cents)) as number;
+  // Daily key has no expiry by default; pin a TTL on first write.
+  if (newDaily === cents) {
+    await redis.expire(dailyKey, DAILY_BUDGET_TTL_SECONDS);
+  }
+  if (newDaily > cfg.dailyBudgetUsd * 100) {
+    await redis.decrby(sessionKey, cents);
+    await redis.decrby(dailyKey, cents);
+    throw new ReviewerBudgetExhausted(newDaily / 100, cfg.dailyBudgetUsd, "daily");
+  }
+}
+
+/**
+ * Refund a previously-reserved amount on both scopes. Call this when the
+ * actual LLM call failed after the reservation succeeded — reviewers
+ * shouldn't pay budget for our errors.
+ */
+export async function refundReviewerSpend(sessionId: string, estCostUsd: number): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return; // best-effort
+  const cents = Math.ceil(estCostUsd * 100);
+  await redis.decrby(`reviewer:${sessionId}:spent_cents`, cents);
+  await redis.decrby(dailyBudgetKey(), cents);
 }

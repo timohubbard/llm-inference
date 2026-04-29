@@ -22,8 +22,8 @@ const FALLBACK_MODELS: ModelInfo[] = [
     outputCostPerMTok: 75,
   },
   {
-    id: "claude-sonnet-4-6",
-    displayName: "Claude Sonnet 4.6",
+    id: "claude-sonnet-4-5",
+    displayName: "Claude Sonnet 4.5",
     contextWindow: 200_000,
     supportsJsonMode: true,
     supportsSeed: false,

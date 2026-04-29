@@ -13,7 +13,9 @@ import {
 import { db } from "@/db/client";
 import { constructs, projects } from "@/db/schema";
 import { resolveKey } from "@/lib/providers";
-import { reserveReviewerSpend, ReviewerBudgetExhausted } from "@/lib/reviewer";
+import { refundReviewerSpend, reserveReviewerSpend, ReviewerBudgetExhausted } from "@/lib/reviewer";
+
+const MAX_DOC_CHARS = 100_000;
 
 const body = z.object({
   projectId: z.string().uuid(),
@@ -24,7 +26,12 @@ const body = z.object({
   outcomeVariable: z.string().optional(),
   temperature: z.number().min(0).max(2).default(0.2),
   sampleDocuments: z
-    .array(z.object({ id: z.string(), text: z.string() }))
+    .array(
+      z.object({
+        id: z.string(),
+        text: z.string().max(MAX_DOC_CHARS, `document text exceeds ${MAX_DOC_CHARS} characters`),
+      }),
+    )
     .min(1)
     .max(30),
 });
@@ -64,28 +71,40 @@ export async function POST(req: Request) {
       sampleDocuments: parsed.data.sampleDocuments,
     });
 
+    let reservedEstUsd = 0;
+    let reviewerSessionId: string | undefined;
     if (key.mode === "reviewer" && key.sessionId) {
-      const est = provider.estimateCost(parsed.data.model, Math.ceil(userPrompt.length / 4), 1200) ?? 0.05;
-      await reserveReviewerSpend(key.sessionId, est);
+      reservedEstUsd =
+        provider.estimateCost(parsed.data.model, Math.ceil(userPrompt.length / 4), 1200) ?? 0.05;
+      reviewerSessionId = key.sessionId;
+      await reserveReviewerSpend(key.sessionId, reservedEstUsd);
     }
 
-    const { result } = await completeWithRetry<z.infer<typeof macroInferenceResponseSchema>>(provider, {
-      apiKey: key.apiKey,
-      model: parsed.data.model,
-      system: buildMacroInferenceSystemPrompt(),
-      messages: [{ role: "user", content: userPrompt }],
-      responseSchema: macroInferenceResponseSchema,
-      temperature: parsed.data.temperature,
-      maxTokens: 2000,
-    });
+    try {
+      const { result } = await completeWithRetry<z.infer<typeof macroInferenceResponseSchema>>(provider, {
+        apiKey: key.apiKey,
+        model: parsed.data.model,
+        system: buildMacroInferenceSystemPrompt(),
+        messages: [{ role: "user", content: userPrompt }],
+        responseSchema: macroInferenceResponseSchema,
+        temperature: parsed.data.temperature,
+        maxTokens: 2000,
+      });
 
-    return NextResponse.json({
-      signals: result.content.signals,
-      notes: result.content.notes ?? null,
-      tokensIn: result.tokensIn,
-      tokensOut: result.tokensOut,
-      modelVersion: result.modelVersion ?? null,
-    });
+      return NextResponse.json({
+        signals: result.content.signals,
+        notes: result.content.notes ?? null,
+        tokensIn: result.tokensIn,
+        tokensOut: result.tokensOut,
+        modelVersion: result.modelVersion ?? null,
+      });
+    } catch (innerErr) {
+      // LLM call failed AFTER reservation succeeded — refund the reviewer.
+      if (reviewerSessionId && reservedEstUsd > 0) {
+        await refundReviewerSpend(reviewerSessionId, reservedEstUsd);
+      }
+      throw innerErr;
+    }
   } catch (err) {
     if (err instanceof ReviewerBudgetExhausted) {
       return NextResponse.json({ error: err.message }, { status: 402 });

@@ -12,6 +12,8 @@ export type ReviewerSession =
       sessionId: string;
       spentUsd: number;
       capUsd: number;
+      dailySpentUsd: number;
+      dailyCapUsd: number;
       availableProviders: ReviewerProviderId[];
     }
   | { active: false; loading: true };
@@ -31,6 +33,8 @@ export function useReviewerSession(): ReviewerSession {
             sessionId: body.sessionId,
             spentUsd: body.spentUsd ?? 0,
             capUsd: body.capUsd ?? 0,
+            dailySpentUsd: body.dailySpentUsd ?? 0,
+            dailyCapUsd: body.dailyCapUsd ?? 0,
             availableProviders: body.availableProviders ?? [],
           });
         } else {

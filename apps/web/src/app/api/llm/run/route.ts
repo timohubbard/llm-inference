@@ -14,7 +14,9 @@ import {
 import { db } from "@/db/client";
 import { constructs, corpora, llmPrompts, llmRuns, projects } from "@/db/schema";
 import { resolveKey } from "@/lib/providers";
-import { reserveReviewerSpend, ReviewerBudgetExhausted } from "@/lib/reviewer";
+import { refundReviewerSpend, reserveReviewerSpend, ReviewerBudgetExhausted } from "@/lib/reviewer";
+
+const MAX_DOC_CHARS = 100_000; // ~25k tokens — covers full shareholder letters comfortably
 
 const body = z.object({
   projectId: z.string().uuid(),
@@ -25,7 +27,15 @@ const body = z.object({
   model: z.string().min(1),
   temperature: z.number().min(0).max(2).default(0),
   seed: z.number().int().optional(),
-  documents: z.array(z.object({ id: z.string(), text: z.string() })).min(1).max(2000),
+  documents: z
+    .array(
+      z.object({
+        id: z.string(),
+        text: z.string().max(MAX_DOC_CHARS, `document text exceeds ${MAX_DOC_CHARS} characters`),
+      }),
+    )
+    .min(1)
+    .max(2000),
 });
 
 export async function POST(req: Request) {
@@ -100,13 +110,15 @@ export async function POST(req: Request) {
             document: { id: doc.id, text: doc.text },
           });
 
+          let reservedEstUsd = 0;
           if (key.mode === "reviewer" && key.sessionId) {
-            const est = provider.estimateCost(parsed.data.model, Math.ceil(userPrompt.length / 4), 200) ?? 0.01;
+            reservedEstUsd =
+              provider.estimateCost(parsed.data.model, Math.ceil(userPrompt.length / 4), 200) ?? 0.01;
             try {
-              await reserveReviewerSpend(key.sessionId, est);
+              await reserveReviewerSpend(key.sessionId, reservedEstUsd);
             } catch (err) {
               // Surface the error inline so the client sees what went wrong
-              // (missing Upstash config, budget exhausted, etc.) — never silently
+              // (budget exhausted, Upstash config, etc.) — never silently
               // close the stream.
               const msg =
                 err instanceof ReviewerBudgetExhausted
@@ -141,6 +153,10 @@ export async function POST(req: Request) {
               rationale: result.content.rationale,
             }) + "\n"));
           } catch (err) {
+            // Refund the reservation — reviewers shouldn't pay budget for our errors.
+            if (key.mode === "reviewer" && key.sessionId && reservedEstUsd > 0) {
+              await refundReviewerSpend(key.sessionId, reservedEstUsd);
+            }
             const msg = err instanceof ProviderParseError
               ? `parse_failed: ${err.message}`
               : err instanceof Error ? err.message : String(err);
