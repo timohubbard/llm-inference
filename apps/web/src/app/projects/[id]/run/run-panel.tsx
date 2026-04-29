@@ -29,10 +29,11 @@ interface Corpus { id: string; docCount: number }
 type Doc = { id: string; text: string };
 type ProviderId = "anthropic" | "openai" | "google";
 
-type DictBundledMethod = "lmd" | "mfd2" | "emolex" | "huliu";
+type DictBundledMethod = "regfocus" | "lmd" | "mfd2" | "emolex" | "huliu";
 type DictMethod = DictBundledMethod | "custom";
 
 const BUNDLED_DICTS: Array<{ id: DictBundledMethod; label: string; description: string }> = [
+  { id: "regfocus", label: "Regulatory Focus (Gamache et al. 2015)", description: "promotion / prevention" },
   { id: "lmd", label: "Loughran–McDonald (finance)", description: "7 sentiment categories" },
   { id: "mfd2", label: "Moral Foundations 2.0", description: "5 foundations × virtue/vice" },
   { id: "emolex", label: "NRC EmoLex", description: "8 emotions + pos/neg" },
@@ -86,7 +87,7 @@ export function RunPanel({ projectId, construct, corpus }: { projectId: string; 
   const [useSecondModel, setUseSecondModel] = useState(false);
   const [sampleSize, setSampleSize] = useState(5);
 
-  const [dictMethod, setDictMethod] = useState<DictMethod>("lmd");
+  const [dictMethod, setDictMethod] = useState<DictMethod>("regfocus");
   const [primaryCategory, setPrimaryCategory] = useState<string>("");
   const [dictBusy, setDictBusy] = useState(false);
   const [dictErr, setDictErr] = useState<string | null>(null);

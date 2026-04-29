@@ -4,7 +4,7 @@ import { z } from "zod";
 import { scoreDictionary } from "@/lib/sidecar";
 
 const body = z.object({
-  method: z.enum(["lmd", "mfd2", "emolex", "huliu", "liwc", "custom_dict"]),
+  method: z.enum(["regfocus", "lmd", "mfd2", "emolex", "huliu", "liwc", "custom_dict"]),
   corpusId: z.string().uuid(),
   primaryCategory: z.string().optional(),
   dictionary: z.record(z.array(z.string())).optional(),

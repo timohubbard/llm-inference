@@ -52,26 +52,48 @@ def load_corpus() -> list[dict]:
     return docs
 
 
-def compute_lmd(docs: list[dict]) -> dict:
-    """Run real LMD scoring via the same code path the production sidecar uses."""
-    out = _shared.score_documents(method="lmd", documents=docs)
-    # Compute primary score per doc: (positive - negative) / tokenCount
+def compute_dict(docs: list[dict], method: str = "regfocus") -> dict:
+    """Run real dictionary scoring via the same code path the production sidecar uses.
+
+    Defaults to regfocus (Gamache et al. 2015) — the live tool's default dictionary.
+    Pass method='lmd' / 'mfd2' / etc. to switch.
+    """
+    out = _shared.score_documents(method=method, documents=docs)
+    meta = out["meta"]
+    primary = meta.get("primaryMeasure") or {}
+    label = primary.get("label", "primary measure")
+
+    def primary_score(cc: dict, tc: int) -> float:
+        denom = max(1, tc)
+        ptype = primary.get("type")
+        if ptype == "diff_ratio":
+            pos = cc.get(primary.get("positive", ""), 0)
+            neg = cc.get(primary.get("negative", ""), 0)
+            return (pos - neg) / denom
+        if ptype == "single_category":
+            return cc.get(primary.get("category", ""), 0) / denom
+        # Fallback: (positive - negative) / tokens if those categories exist;
+        # else first-category-by-name / tokens
+        if "positive" in cc and "negative" in cc:
+            return (cc["positive"] - cc["negative"]) / denom
+        keys = sorted(cc.keys())
+        return (cc[keys[0]] / denom) if keys else 0.0
+
     scored = []
     for s in out["scores"]:
         cc = s["categoryCounts"]
-        tc = max(1, s["tokenCount"])
-        score = (cc.get("positive", 0) - cc.get("negative", 0)) / tc
+        tc = s["tokenCount"]
         scored.append({
             "id": s["id"],
-            "score": round(score, 6),
-            "tokenCount": s["tokenCount"],
+            "score": round(primary_score(cc, tc), 6),
+            "tokenCount": tc,
             "categoryCounts": cc,
         })
     return {
-        "method": "lmd",
-        "name": out["meta"].get("name", "Loughran–McDonald (full)"),
-        "primaryMeasureLabel": "(positive − negative) / token count",
-        "categories": out["meta"]["categories"],
+        "method": method,
+        "name": meta.get("name", method),
+        "primaryMeasureLabel": label,
+        "categories": meta["categories"],
         "scores": scored,
     }
 
@@ -231,9 +253,10 @@ def main() -> int:
     docs = load_corpus()
     print(f"Loaded {len(docs)} corpus docs")
 
-    # 1. Real LMD scoring
-    snapshot["dict"] = compute_lmd(docs)
-    print(f"Computed LMD scores for {len(snapshot['dict']['scores'])} docs")
+    # 1. Real dictionary scoring (default: regfocus = Gamache et al. 2015)
+    method = os.environ.get("DEMO_DICT_METHOD", "regfocus")
+    snapshot["dict"] = compute_dict(docs, method=method)
+    print(f"Computed {method} scores for {len(snapshot['dict']['scores'])} docs")
 
     # 2. Triangulation (only if LLM scores present and non-null)
     tri = compute_triangulation(snapshot)

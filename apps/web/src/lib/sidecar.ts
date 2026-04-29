@@ -1,4 +1,4 @@
-export type DictionaryMethod = "lmd" | "mfd2" | "emolex" | "huliu" | "liwc" | "custom_dict";
+export type DictionaryMethod = "regfocus" | "lmd" | "mfd2" | "emolex" | "huliu" | "liwc" | "custom_dict";
 
 export interface DictionaryScoreRequest {
   method: DictionaryMethod;

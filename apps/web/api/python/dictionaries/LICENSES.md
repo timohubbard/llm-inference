@@ -6,6 +6,26 @@ but reviewers running substantive analysis should replace them with the full
 published word lists (instructions per-dict below) via the **Upload custom
 dictionary** flow.
 
+## `regfocus.json` — Regulatory Focus (Gamache et al. 2015)
+
+- **Categories**: 2 (`promotion`, `prevention`).
+- **Source**: Verbatim 27 promotion and 25 prevention word stems from Table 1
+  of Gamache, McNamara, Mannor & Johnson (2015), *Motivated to Acquire? The
+  Impact of CEO Regulatory Focus on Firm Acquisitions*, Academy of Management
+  Journal 58(4): 1261–1282. The paper notes (p. 1270): "Our dictionary also
+  captured alternative tenses of the words used."  Each stem in this bundle is
+  expanded to its common tense variants (e.g., `accomplish` → `accomplished`,
+  `accomplishments`, `accomplishing`).
+- **License**: Word lists are published as Table 1 of an AMJ article; reuse
+  with attribution is standard academic practice. Cite Gamache et al. (2015).
+- **Primary measure**: this bundle defaults to the composite
+  `(promotion − prevention) / token-count` for a single primary number, but
+  the original paper uses promotion-% and prevention-% as **separate**
+  measures entered jointly in regression. Switch the Primary Measure dropdown
+  in Step 3 to a single category to match the paper's specification.
+- **Theoretical grounding**: Higgins, E. T. (1997). *Beyond pleasure and
+  pain*. American Psychologist 52, 1280–1300.
+
 ## `lmd.json` — Loughran–McDonald (LM) Master Dictionary
 
 - **Full list**: ~2,700 words across 7 sentiment categories (negative, positive,
