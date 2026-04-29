@@ -31,7 +31,7 @@ export default async function MacroPage({ params }: { params: Promise<{ id: stri
       </p>
 
       <StepGuide
-        what="The LLM reads a stratified sample of your corpus and proposes signals it thinks distinguish high vs. low values of the construct — lexical, phrasal, syntactic, semantic, or structural. These become auditable, transparent features."
+        what="The LLM reads a stratified sample of your corpus and proposes signals that may distinguish high vs. low values of the construct — lexical, phrasal, syntactic, semantic, or structural. These become auditable, transparent features."
         todo="Pick a sample size, run 'Surface candidate signals,' then promote the useful ones into keyword counts or presence flags. Edit the pattern when prompted to tune it to your corpus."
         next="Step 6 — add the promoted features as covariates in the combined regression. Promote as many or few as you like."
       />

@@ -47,7 +47,8 @@ export default function LandingPage() {
           <SignedIn>
             <Link href="/projects" className="rounded bg-primary px-4 py-2 text-primary-foreground">Open a project</Link>
           </SignedIn>
-          <Link href="/reviewer" className="rounded border px-4 py-2">I&apos;m a JMS reviewer</Link>
+          <Link href="/reviewer" className="rounded border px-4 py-2">I&apos;m a JMS editor or reviewer</Link>
+          <Link href="/demo" className="rounded border px-4 py-2">View completed demo</Link>
         </div>
       </section>
 

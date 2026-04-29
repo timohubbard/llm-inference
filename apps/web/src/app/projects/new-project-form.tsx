@@ -18,7 +18,7 @@ export function NewProjectForm() {
         body: JSON.stringify({
           name: opts.seedDemo ? "Buffett shareholder letters demo" : name,
           researchQuestion: opts.seedDemo
-            ? "Does promotion-focus language in Buffett's shareholder letters co-move with subsequent returns?"
+            ? "Does promotion-focus language in Buffett's shareholder letters covary with subsequent returns?"
             : researchQuestion,
           seedDemo: opts.seedDemo ?? false,
         }),

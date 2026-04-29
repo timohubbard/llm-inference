@@ -20,17 +20,19 @@ export function ConstructForm({ projectId, initial }: { projectId: string; initi
   const [name, setName] = useState(initial?.name ?? "Promotion Focus");
   const [definition, setDefinition] = useState(
     initial?.definition ??
-      "Regulatory focus oriented toward gains, aspirations, and advancement opportunities (Higgins, 1997).",
+      "The degree to which language emphasizes gains, aspirations, and advancement opportunities — i.e., a promotion focus per Higgins (1997). Promotion focus is conceptually independent of prevention focus; this construct measures only the promotion dimension.",
   );
   const [scaleMin, setScaleMin] = useState(initial?.scaleMin ?? 1);
   const [scaleMax, setScaleMax] = useState(initial?.scaleMax ?? 7);
   const [anchorsText, setAnchorsText] = useState(
     initial
       ? Object.entries(initial.anchors).sort(([a], [b]) => Number(a) - Number(b)).map(([k, v]) => `${k}: ${v}`).join("\n")
-      : "1: strongly prevention-focused (loss, obligation, security)\n4: balanced\n7: strongly promotion-focused (gain, aspiration, advancement)",
+      : "1: no language of gain, aspiration, or advancement\n4: moderate promotion focus (some gain/aspiration language)\n7: strongly promotion-focused (pervasive gain, aspiration, advancement language)",
   );
   const [citationsText, setCitationsText] = useState(
-    initial ? initial.citations.join("\n") : "Higgins (1997). Beyond pleasure and pain. American Psychologist, 52, 1280-1300.",
+    initial
+      ? initial.citations.join("\n")
+      : "Higgins (1997). Beyond pleasure and pain. American Psychologist, 52, 1280-1300.\nNote: Prevention focus is a conceptually independent dimension and would be measured as a separate construct.",
   );
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);

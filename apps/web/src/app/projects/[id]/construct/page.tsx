@@ -24,8 +24,8 @@ export default async function ConstructPage({ params }: { params: Promise<{ id: 
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="text-2xl font-semibold">Step 1 — Construct</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Define the construct, scale, and per-point anchors. Each edit creates a new version — prior versions remain
-        attached to any runs that used them.
+        Provide the construct&apos;s definition, scale, and per-point anchors. Each edit creates a new version — prior
+        versions remain attached to any runs that used them.
       </p>
       <StepGuide
         what="A construct is the latent thing you want to measure (e.g., promotion focus, tone, uncertainty). The definition, scale, and anchors you write here are passed verbatim into every LLM scoring call."
