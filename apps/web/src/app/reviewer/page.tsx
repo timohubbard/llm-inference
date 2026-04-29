@@ -33,7 +33,7 @@ export default function ReviewerPage() {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
       <h1 className="text-2xl font-semibold">Editor / reviewer access</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        If you&apos;re a JMS editor or reviewer evaluating this tool, enter the access password to
+        If you&apos;re an editor or reviewer evaluating this tool, enter the access password to
         unlock server-side API keys for any providers the deployment has configured (Anthropic,
         OpenAI, and/or Google). A per-session spend cap (default ~$2) applies across all providers.
         This lets you exercise the full workflow — including multi-model comparison — without
