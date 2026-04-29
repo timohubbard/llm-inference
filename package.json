@@ -17,10 +17,14 @@
     "e2e": "pnpm --filter @llmi/web e2e",
     "db:generate": "pnpm --filter @llmi/web db:generate",
     "db:migrate": "pnpm --filter @llmi/web db:migrate",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "demo:capture": "tsx scripts/capture_llm_scores.ts",
+    "demo:rebuild": "apps/web/.venv-test/bin/python3 scripts/build_demo_snapshot.py"
   },
   "devDependencies": {
+    "@llmi/shared": "workspace:*",
     "prettier": "^3.3.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }
 }

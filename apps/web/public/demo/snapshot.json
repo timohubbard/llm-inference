@@ -1,7 +1,7 @@
 {
-  "capturedAt": "2026-04-28T18:42:00Z",
+  "capturedAt": "2026-04-29T20:52:39Z",
   "capturedBy": "tim.hubbard@gmail.com",
-  "note": "Saved snapshot of a complete run through all eight steps against the bundled 20-letter Buffett corpus. Reviewers viewing this page consume zero tokens; the live tool reproduces this end-to-end.",
+  "note": "Saved snapshot of a complete run through all eight steps against the bundled 20-letter Buffett corpus. Dictionary scores, triangulation, and regression are computed deterministically from the bundled LMD seed dictionary; LLM scores are real Anthropic Sonnet 4.5 outputs at temperature 0 (model: claude-sonnet-4-5-20250929, total tokens: 8,006 in / 1,996 out). Reviewers viewing this page consume zero tokens; the live tool reproduces this end-to-end.",
   "construct": {
     "name": "Promotion Focus",
     "version": 1,
@@ -21,35 +21,303 @@
   "corpus": {
     "name": "Warren Buffett shareholder letters (demo)",
     "docCount": 20,
-    "checksumSha256": "snapshot-corpus-checksum-placeholder",
+    "checksumSha256": "sha256:b7802eefe4a0d92d37402d553ec29a9322968d15d6941f2922c895a968128ae2",
     "source": "berkshirehathaway.com/letters"
   },
   "dict": {
     "method": "lmd",
-    "name": "Loughran–McDonald (full)",
+    "name": "Loughran-McDonald Master Dictionary (seed)",
     "primaryMeasureLabel": "(positive − negative) / token count",
-    "categories": ["positive", "negative", "uncertainty", "litigious", "strong_modal", "weak_modal", "constraining"],
+    "categories": [
+      "constraining",
+      "litigious",
+      "negative",
+      "positive",
+      "strong_modal",
+      "uncertainty",
+      "weak_modal"
+    ],
     "scores": [
-      { "id": "brk-1977", "score":  0.0091, "tokenCount":  8421, "categoryCounts": { "positive": 142, "negative":  65, "uncertainty":  31, "litigious":  12, "strong_modal":  44, "weak_modal":  18, "constraining":  9 } },
-      { "id": "brk-1981", "score":  0.0067, "tokenCount":  9112, "categoryCounts": { "positive": 138, "negative":  77, "uncertainty":  37, "litigious":  14, "strong_modal":  49, "weak_modal":  22, "constraining": 11 } },
-      { "id": "brk-1985", "score":  0.0102, "tokenCount":  8934, "categoryCounts": { "positive": 156, "negative":  65, "uncertainty":  29, "litigious":  10, "strong_modal":  48, "weak_modal":  19, "constraining":  8 } },
-      { "id": "brk-1989", "score":  0.0084, "tokenCount":  9603, "categoryCounts": { "positive": 161, "negative":  80, "uncertainty":  35, "litigious":  15, "strong_modal":  53, "weak_modal":  23, "constraining": 12 } },
-      { "id": "brk-1993", "score":  0.0095, "tokenCount":  9842, "categoryCounts": { "positive": 178, "negative":  84, "uncertainty":  37, "litigious":  18, "strong_modal":  57, "weak_modal":  24, "constraining": 13 } },
-      { "id": "brk-1996", "score":  0.0103, "tokenCount": 10210, "categoryCounts": { "positive": 192, "negative":  87, "uncertainty":  39, "litigious":  17, "strong_modal":  60, "weak_modal":  26, "constraining": 14 } },
-      { "id": "brk-1999", "score":  0.0072, "tokenCount": 11244, "categoryCounts": { "positive": 184, "negative": 103, "uncertainty":  46, "litigious":  21, "strong_modal":  67, "weak_modal":  31, "constraining": 17 } },
-      { "id": "brk-2001", "score":  0.0041, "tokenCount": 10876, "categoryCounts": { "positive": 161, "negative": 116, "uncertainty":  52, "litigious":  24, "strong_modal":  64, "weak_modal":  35, "constraining": 19 } },
-      { "id": "brk-2003", "score":  0.0079, "tokenCount": 10544, "categoryCounts": { "positive": 178, "negative":  95, "uncertainty":  44, "litigious":  20, "strong_modal":  66, "weak_modal":  29, "constraining": 16 } },
-      { "id": "brk-2005", "score":  0.0091, "tokenCount": 10912, "categoryCounts": { "positive": 187, "negative":  88, "uncertainty":  41, "litigious":  19, "strong_modal":  68, "weak_modal":  27, "constraining": 14 } },
-      { "id": "brk-2007", "score":  0.0086, "tokenCount": 11140, "categoryCounts": { "positive": 195, "negative":  99, "uncertainty":  44, "litigious":  21, "strong_modal":  70, "weak_modal":  30, "constraining": 16 } },
-      { "id": "brk-2008", "score":  0.0028, "tokenCount": 11856, "categoryCounts": { "positive": 162, "negative": 129, "uncertainty":  61, "litigious":  28, "strong_modal":  72, "weak_modal":  41, "constraining": 23 } },
-      { "id": "brk-2010", "score":  0.0078, "tokenCount": 11020, "categoryCounts": { "positive": 192, "negative": 106, "uncertainty":  47, "litigious":  22, "strong_modal":  71, "weak_modal":  31, "constraining": 18 } },
-      { "id": "brk-2012", "score":  0.0084, "tokenCount": 10932, "categoryCounts": { "positive": 198, "negative": 106, "uncertainty":  46, "litigious":  21, "strong_modal":  73, "weak_modal":  29, "constraining": 17 } },
-      { "id": "brk-2014", "score":  0.0098, "tokenCount": 10688, "categoryCounts": { "positive": 204, "negative":  99, "uncertainty":  43, "litigious":  19, "strong_modal":  74, "weak_modal":  27, "constraining": 16 } },
-      { "id": "brk-2016", "score":  0.0089, "tokenCount": 10974, "categoryCounts": { "positive": 199, "negative": 101, "uncertainty":  45, "litigious":  20, "strong_modal":  72, "weak_modal":  28, "constraining": 17 } },
-      { "id": "brk-2017", "score":  0.0094, "tokenCount": 11156, "categoryCounts": { "positive": 209, "negative": 104, "uncertainty":  46, "litigious":  20, "strong_modal":  74, "weak_modal":  29, "constraining": 17 } },
-      { "id": "brk-2019", "score":  0.0083, "tokenCount": 10822, "categoryCounts": { "positive": 191, "negative": 101, "uncertainty":  43, "litigious":  20, "strong_modal":  71, "weak_modal":  28, "constraining": 16 } },
-      { "id": "brk-2021", "score":  0.0096, "tokenCount": 10644, "categoryCounts": { "positive": 200, "negative":  98, "uncertainty":  43, "litigious":  19, "strong_modal":  72, "weak_modal":  27, "constraining": 16 } },
-      { "id": "brk-2022", "score":  0.0079, "tokenCount": 11218, "categoryCounts": { "positive": 198, "negative": 109, "uncertainty":  47, "litigious":  22, "strong_modal":  74, "weak_modal":  31, "constraining": 18 } }
+      {
+        "id": "brk-1977",
+        "score": 0.036036,
+        "tokenCount": 111,
+        "categoryCounts": {
+          "positive": 5,
+          "negative": 1,
+          "uncertainty": 0,
+          "litigious": 0,
+          "strong_modal": 0,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-1981",
+        "score": 0.008696,
+        "tokenCount": 115,
+        "categoryCounts": {
+          "positive": 4,
+          "negative": 3,
+          "uncertainty": 1,
+          "litigious": 0,
+          "strong_modal": 1,
+          "weak_modal": 0,
+          "constraining": 2
+        }
+      },
+      {
+        "id": "brk-1985",
+        "score": -0.033058,
+        "tokenCount": 121,
+        "categoryCounts": {
+          "positive": 0,
+          "negative": 4,
+          "uncertainty": 1,
+          "litigious": 0,
+          "strong_modal": 0,
+          "weak_modal": 1,
+          "constraining": 1
+        }
+      },
+      {
+        "id": "brk-1989",
+        "score": 0.0,
+        "tokenCount": 111,
+        "categoryCounts": {
+          "positive": 2,
+          "negative": 2,
+          "uncertainty": 0,
+          "litigious": 0,
+          "strong_modal": 0,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-1993",
+        "score": -0.009524,
+        "tokenCount": 105,
+        "categoryCounts": {
+          "positive": 0,
+          "negative": 1,
+          "uncertainty": 1,
+          "litigious": 0,
+          "strong_modal": 0,
+          "weak_modal": 0,
+          "constraining": 1
+        }
+      },
+      {
+        "id": "brk-1996",
+        "score": 0.0,
+        "tokenCount": 112,
+        "categoryCounts": {
+          "positive": 2,
+          "negative": 2,
+          "uncertainty": 1,
+          "litigious": 1,
+          "strong_modal": 2,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-1999",
+        "score": -0.010309,
+        "tokenCount": 97,
+        "categoryCounts": {
+          "positive": 1,
+          "negative": 2,
+          "uncertainty": 0,
+          "litigious": 0,
+          "strong_modal": 0,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2001",
+        "score": -0.053571,
+        "tokenCount": 112,
+        "categoryCounts": {
+          "positive": 1,
+          "negative": 7,
+          "uncertainty": 2,
+          "litigious": 0,
+          "strong_modal": 1,
+          "weak_modal": 0,
+          "constraining": 1
+        }
+      },
+      {
+        "id": "brk-2003",
+        "score": -0.018692,
+        "tokenCount": 107,
+        "categoryCounts": {
+          "positive": 1,
+          "negative": 3,
+          "uncertainty": 2,
+          "litigious": 1,
+          "strong_modal": 1,
+          "weak_modal": 1,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2005",
+        "score": -0.009091,
+        "tokenCount": 110,
+        "categoryCounts": {
+          "positive": 2,
+          "negative": 3,
+          "uncertainty": 0,
+          "litigious": 0,
+          "strong_modal": 1,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2007",
+        "score": 0.0,
+        "tokenCount": 120,
+        "categoryCounts": {
+          "positive": 2,
+          "negative": 2,
+          "uncertainty": 1,
+          "litigious": 2,
+          "strong_modal": 2,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2008",
+        "score": -0.024,
+        "tokenCount": 125,
+        "categoryCounts": {
+          "positive": 2,
+          "negative": 5,
+          "uncertainty": 0,
+          "litigious": 2,
+          "strong_modal": 0,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2010",
+        "score": 0.018349,
+        "tokenCount": 109,
+        "categoryCounts": {
+          "positive": 2,
+          "negative": 0,
+          "uncertainty": 0,
+          "litigious": 0,
+          "strong_modal": 2,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2012",
+        "score": 0.044643,
+        "tokenCount": 112,
+        "categoryCounts": {
+          "positive": 5,
+          "negative": 0,
+          "uncertainty": 1,
+          "litigious": 0,
+          "strong_modal": 0,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2014",
+        "score": 0.016393,
+        "tokenCount": 122,
+        "categoryCounts": {
+          "positive": 4,
+          "negative": 2,
+          "uncertainty": 0,
+          "litigious": 1,
+          "strong_modal": 2,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2016",
+        "score": 0.025641,
+        "tokenCount": 117,
+        "categoryCounts": {
+          "positive": 3,
+          "negative": 0,
+          "uncertainty": 0,
+          "litigious": 1,
+          "strong_modal": 2,
+          "weak_modal": 1,
+          "constraining": 1
+        }
+      },
+      {
+        "id": "brk-2017",
+        "score": 0.050847,
+        "tokenCount": 118,
+        "categoryCounts": {
+          "positive": 6,
+          "negative": 0,
+          "uncertainty": 0,
+          "litigious": 1,
+          "strong_modal": 0,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2019",
+        "score": 0.074074,
+        "tokenCount": 108,
+        "categoryCounts": {
+          "positive": 8,
+          "negative": 0,
+          "uncertainty": 0,
+          "litigious": 1,
+          "strong_modal": 1,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2021",
+        "score": 0.008772,
+        "tokenCount": 114,
+        "categoryCounts": {
+          "positive": 2,
+          "negative": 1,
+          "uncertainty": 1,
+          "litigious": 0,
+          "strong_modal": 0,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      },
+      {
+        "id": "brk-2022",
+        "score": -0.015267,
+        "tokenCount": 131,
+        "categoryCounts": {
+          "positive": 1,
+          "negative": 3,
+          "uncertainty": 2,
+          "litigious": 1,
+          "strong_modal": 2,
+          "weak_modal": 0,
+          "constraining": 0
+        }
+      }
     ]
   },
   "llm": {
@@ -58,67 +326,237 @@
     "modelVersion": "claude-sonnet-4-5-20250929",
     "promptVersion": "construct-scoring@1.0",
     "temperature": 0,
-    "totalTokensIn": 142188,
-    "totalTokensOut": 8420,
+    "totalTokensIn": 8006,
+    "totalTokensOut": 1996,
     "scores": [
-      { "id": "brk-1977", "score": 5, "rationale": "Strong forward-looking language about acquisition opportunities and reinvestment of insurance float; emphasizes 'building' the textile and insurance businesses through patient capital deployment. Some discussion of operational difficulties tempers this." },
-      { "id": "brk-1981", "score": 4, "rationale": "Moderate promotion language: discusses opportunities in the equity portfolio and pleased commentary on See's Candy growth, but a substantial portion focuses on disappointing textile results and fairness of returns to owners." },
-      { "id": "brk-1985", "score": 6, "rationale": "Heavy emphasis on aspirational themes: the announcement of the Capital Cities/ABC commitment and Buffett's pleasure at partnering with Tom Murphy. Vivid language of 'opportunity' and 'long-term ownership.'" },
-      { "id": "brk-1989", "score": 5, "rationale": "Discusses the See's, Nebraska Furniture Mart, and Buffalo News investments as exemplars of advancement; also 'Mistakes of the First Twenty-Five Years' which is reflective rather than promotional. Net moderate-high." },
-      { "id": "brk-1993", "score": 5, "rationale": "Optimistic framing of the GEICO and Wesco growth, but a notable portion is devoted to risk and the importance of margin of safety; balanced advancement-and-prudence language." },
-      { "id": "brk-1996", "score": 6, "rationale": "Aspirational language about 'owner-related business principles,' the FlightSafety acquisition, and the Coca-Cola compounding story. Heavy emphasis on long-horizon gains." },
-      { "id": "brk-1999", "score": 4, "rationale": "Tempered tone after a difficult year for the equity portfolio (Coca-Cola and others). Discusses opportunities in General Re integration but with substantial caution about valuations of internet-era stocks." },
-      { "id": "brk-2001", "score": 3, "rationale": "Notably cautious. Substantial discussion of insurance underwriting losses, 9/11 impact, and 'we paid a steep price' for General Re; promotion-related language is comparatively muted." },
-      { "id": "brk-2003", "score": 5, "rationale": "Renewed optimism about float growth and acquisition pipeline (McLane, Clayton). Discusses derivatives risks but the dominant register is opportunity-oriented." },
-      { "id": "brk-2005", "score": 5, "rationale": "Discusses the PacifiCorp acquisition and Iscar investment as advancement opportunities; balanced with cautious notes on insurance pricing cycles." },
-      { "id": "brk-2007", "score": 5, "rationale": "Optimistic about Berkshire's diversified earning power; discusses Marmon acquisition as 'the kind of business we love.' Some hedging on derivatives obligations." },
-      { "id": "brk-2008", "score": 2, "rationale": "Distinctly low promotion focus given the financial crisis. Heavy emphasis on losses, derivatives mark-to-market, and 'we did some dumb things.' Aspirational language is largely confined to the closing paragraphs." },
-      { "id": "brk-2010", "score": 5, "rationale": "Recovery-era letter with strong forward-looking language about BNSF acquisition ('all-in wager on the economic future of the United States') and capital expenditures." },
-      { "id": "brk-2012", "score": 5, "rationale": "Discusses Heinz acquisition partnership with 3G as advancement; discusses 'America's tailwind.' Balanced with measured tone on housing market normalization." },
-      { "id": "brk-2014", "score": 6, "rationale": "Fiftieth-anniversary letter with extensive aspirational framing: 'The next 50 years,' Berkshire's compounding story, and reasons for optimism about U.S. business." },
-      { "id": "brk-2016", "score": 5, "rationale": "Discusses Precision Castparts integration and continued capex commitments; positive forward-looking language balanced with caution about stock-market valuations." },
-      { "id": "brk-2017", "score": 5, "rationale": "Notes the tax-reform windfall and discusses long-run share-repurchase opportunity; balanced with caution about the 'auction-like' market for whole companies." },
-      { "id": "brk-2019", "score": 5, "rationale": "Emphasizes the power of retained earnings ('disappearing dividends') and constructive framing of Berkshire's operating-business pipeline; moderate-to-high promotion focus." },
-      { "id": "brk-2021", "score": 5, "rationale": "Optimistic framing of buyback activity ('the joys of compounding') and Berkshire's 'four giants.' Some moderating language on inflation outlook." },
-      { "id": "brk-2022", "score": 5, "rationale": "Discusses 'the secret sauce' of Berkshire's compounding equity holdings; balanced commentary on volatility but the dominant register is advancement-oriented." }
+      {
+        "id": "brk-1977",
+        "score": 5,
+        "rationale": "The text contains multiple promotion-focused phrases emphasizing gains and advancement: 'principal vehicle for long-term gain,' 'float generated...growing steadily,' and 'opportunities to deploy...capital at prices we find attractive.' While the language acknowledges modest current returns and patience, the overall emphasis is on growth prospects, capital deployment opportunities, and long-term gains, indicating a clear promotion orientation."
+      },
+      {
+        "id": "brk-1981",
+        "score": 2,
+        "rationale": "The document contains minimal promotion-focused language. While it mentions 'good year,' 'growth of float,' and 'attractive feature,' these are largely descriptive rather than aspirational. The dominant tone emphasizes caution ('wary'), threats ('principal threat'), and constraints ('overstate the real economic gain'), with little emphasis on gains, aspirations, or advancement opportunities."
+      },
+      {
+        "id": "brk-1985",
+        "score": 2,
+        "rationale": "The text focuses almost entirely on closure, deterioration, and losses rather than gains or advancement. The only forward-looking element is the implicit redeployment of capital away from textiles, but no aspirational language about growth, opportunities, or advancement is present. The dominant tone is one of regret and acknowledgment of costs, not promotion of gains."
+      },
+      {
+        "id": "brk-1989",
+        "score": 5,
+        "rationale": "The text contains notable promotion-focused language emphasizing gains and advancement: 'outstanding year,' 'perform splendidly,' 'compounded intrinsic value,' and 'rewarded our patience' all highlight achievement and positive outcomes. The preference for 'wonderful business' and the emphasis on value creation demonstrate aspiration toward superior performance, though the language is measured rather than pervasively aspirational."
+      },
+      {
+        "id": "brk-1993",
+        "score": 2,
+        "rationale": "The text contains minimal promotion-focused language. While 'book value grew' references a gain, the overall tone emphasizes caution ('more modest pace,' 'declined to add'), risk mitigation ('hedge against ignorance'), and patience rather than aspirations or advancement opportunities. The language is predominantly conservative and restraint-oriented rather than gain- or aspiration-focused."
+      },
+      {
+        "id": "brk-1996",
+        "score": 5,
+        "rationale": "The text contains multiple instances of promotion-focused language emphasizing gains and advancement: 'very strong year,' 'exceptional long-term results,' and the expectation that GEICO will 'produce exceptional long-term results.' The language around GEICO's acquisition and its 'low-cost structure' frames future opportunities and aspirational outcomes, though the overall excerpt is brief and includes some neutral operational content."
+      },
+      {
+        "id": "brk-1999",
+        "score": 2,
+        "rationale": "The text contains minimal promotion-focused language, instead emphasizing caution and restraint ('unwilling to stretch,' 'unattractive' returns). The phrase 'prefer understanding to excitement' explicitly rejects aspiration-oriented language. There is no discussion of gains, growth opportunities, or advancement goals."
+      },
+      {
+        "id": "brk-2001",
+        "score": 2,
+        "rationale": "The text focuses primarily on losses, errors, and decline ('largest insurance losses,' 'book value declined,' 'fault lies with us') with minimal promotion-focused language. The only forward-looking element is a commitment to 'underwriting discipline' and belief in 'long-term value,' which are defensive rather than aspirational or advancement-oriented statements."
+      },
+      {
+        "id": "brk-2003",
+        "score": 2,
+        "rationale": "The text contains minimal promotion-focused language. While 'record results' suggests achievement, the overall emphasis is on caution ('prudence, not prediction'), risk management ('costly and tedious' unwinding), and warnings ('weapons of mass destruction'). The language prioritizes avoiding losses and managing dangers rather than emphasizing gains, aspirations, or advancement opportunities."
+      },
+      {
+        "id": "brk-2005",
+        "score": 3,
+        "rationale": "The document contains minimal promotion-focused language. While it mentions 'strong year' for operating subsidiaries and 'continuing to seek large acquisitions,' the overall emphasis is on absorbing losses and managing risks rather than aspirations, gains, or advancement opportunities. The language is predominantly neutral and factual rather than aspirational."
+      },
+      {
+        "id": "brk-2007",
+        "score": 3,
+        "rationale": "The document contains limited promotion-focused language. While phrases like 'opportunity arises' and 'float continues to grow' suggest some forward-looking potential, the overall tone is cautious and observational rather than aspirational. The emphasis on waiting for assets 'at prices we are willing to pay' and watching consequences unfold reflects restraint rather than active pursuit of gains or advancement."
+      },
+      {
+        "id": "brk-2008",
+        "score": 2,
+        "rationale": "The document focuses overwhelmingly on negative outcomes ('terrible year,' 'losses,' 'declined,' 'contracted sharply') with minimal promotion-focused language. The only forward-looking statement is 'We remain confident in the long-term prospects,' which provides a single modest expression of aspiration amid predominantly loss-oriented framing. This represents minimal rather than no promotion focus."
+      },
+      {
+        "id": "brk-2010",
+        "score": 5,
+        "rationale": "The text contains clear promotion-focused language emphasizing gains and advancement: 'all-in bet on the long-term health,' 'operating earnings recovered sharply,' 'began to show signs of stabilization,' and 'remain confident...in the resilience.' These phrases consistently frame outcomes in terms of growth, recovery, and positive future prospects rather than loss prevention."
+      },
+      {
+        "id": "brk-2012",
+        "score": 5,
+        "rationale": "The text contains multiple instances of promotion-focused language emphasizing gains and advancement: 'continued progress,' 'earnings power grew again,' 'excellent results,' 'began to recover in earnest,' and 'outlook...remains extraordinarily favorable.' These phrases consistently frame outcomes in terms of growth, improvement, and positive future prospects, demonstrating a clear promotion orientation beyond moderate levels."
+      },
+      {
+        "id": "brk-2014",
+        "score": 3,
+        "rationale": "The document contains limited promotion-focused language. While it mentions 'success we have achieved,' 'extraordinary tailwind,' and subsidiaries earning 'sums annually that would have seemed implausible,' the overall emphasis is on reflection, continuity, and error avoidance rather than aspirations or advancement opportunities. The language is more retrospective and conservative than gain-oriented."
+      },
+      {
+        "id": "brk-2016",
+        "score": 5,
+        "rationale": "The text contains multiple instances of promotion-focused language emphasizing gains and advancement. Phrases like 'added a superb industrial business,' 'genuinely extraordinary management,' 'great optimism,' and especially 'productive capacity of this country...will be vastly greater in thirty years' clearly emphasize aspirations, growth, and future advancement opportunities. While not every sentence is promotion-focused, the overall orientation toward gains and positive future outcomes is strong."
+      },
+      {
+        "id": "brk-2017",
+        "score": 2,
+        "rationale": "The document contains minimal promotion-focused language. While it mentions 'gain' twice, the context explicitly disclaims operating accomplishment ('does not reflect any operating accomplishment') and emphasizes caution and waiting rather than advancement or aspiration. The overall tone is conservative and focused on avoiding losses ('margin of safety') rather than pursuing gains or growth opportunities."
+      },
+      {
+        "id": "brk-2019",
+        "score": 3,
+        "rationale": "The text contains limited promotion-focused language. While phrases like 'attractive opportunities for reinvestment' and 'ability of our operating managers to extend' competitive advantages suggest some aspiration and advancement, the overall tone is measured and restrained. The language emphasizes satisfactory performance and confidence in durability rather than strong aspirational or gain-oriented messaging."
+      },
+      {
+        "id": "brk-2021",
+        "score": 5,
+        "rationale": "The text contains multiple instances of promotion-focused language emphasizing gains and advancement: 'recovery,' 'record earnings,' 'most attractive long-term investment,' and 'transfer of wealth' to remaining shareholders. These phrases consistently frame outcomes in terms of gains, achievements, and opportunities for advancement, though the overall tone remains measured rather than pervasively aspirational."
+      },
+      {
+        "id": "brk-2022",
+        "score": 2,
+        "rationale": "The text contains minimal promotion-focused language. While 'strong results' suggests a positive outcome, the overall tone emphasizes caution ('found little at prices we liked,' 'modest' acquisition activity) and discipline rather than aspirations, gains, or advancement opportunities. The language is primarily descriptive and conservative rather than aspirational."
+      }
     ]
   },
   "triangulation": {
     "n": 20,
-    "pearson": 0.671,
-    "spearman": 0.643,
+    "pearson": 0.434,
+    "spearman": 0.602,
     "topDisagreements": [
-      { "id": "brk-1977", "dictScore": 0.0091, "llmScore": 5, "delta": 1.42, "note": "Dictionary is moderate; LLM rates higher because it credits the 'building the business' aspirational framing not captured by sentiment word lists." },
-      { "id": "brk-2008", "dictScore": 0.0028, "llmScore": 2, "delta": 0.39, "note": "Both agree this is the lowest-promotion letter in the corpus (financial crisis). Strong agreement, listed for completeness." },
-      { "id": "brk-2014", "dictScore": 0.0098, "llmScore": 6, "delta": 1.18, "note": "LLM rates the fiftieth-anniversary letter higher due to explicit aspirational language about 'the next 50 years' that LMD treats as ordinary positive sentiment." },
-      { "id": "brk-1985", "dictScore": 0.0102, "llmScore": 6, "delta": 1.10, "note": "Capital Cities/ABC partnership announcement reads as strongly aspirational to the LLM; LMD captures positive sentiment but not the construct-specific 'advancement' framing." },
-      { "id": "brk-2001", "dictScore": 0.0041, "llmScore": 3, "delta": 0.21, "note": "Both agree this is a low-promotion letter (post-9/11, GenRe writedowns)." }
+      {
+        "id": "brk-2019",
+        "dictScore": 0.074074,
+        "llmScore": 3,
+        "delta": 2.437,
+        "note": "|Δz| = 2.44: dictionary score 0.0741 vs. LLM score 3. The text contains limited promotion-focused language."
+      },
+      {
+        "id": "brk-2017",
+        "dictScore": 0.050847,
+        "llmScore": 2,
+        "delta": 2.402,
+        "note": "|Δz| = 2.40: dictionary score 0.0508 vs. LLM score 2. The document contains minimal promotion-focused language."
+      },
+      {
+        "id": "brk-1989",
+        "dictScore": 0.0,
+        "llmScore": 5,
+        "delta": 1.457,
+        "note": "|Δz| = 1.46: dictionary score 0.0000 vs. LLM score 5. The text contains notable promotion-focused language emphasizing gains and advancement: 'outstanding year,' 'perform splendidly,' 'compounded intrinsic value,' and 'rewarded our…."
+      },
+      {
+        "id": "brk-1996",
+        "dictScore": 0.0,
+        "llmScore": 5,
+        "delta": 1.457,
+        "note": "|Δz| = 1.46: dictionary score 0.0000 vs. LLM score 5. The text contains multiple instances of promotion-focused language emphasizing gains and advancement: 'very strong year,' 'exceptional long-term results,' and the expectation th…."
+      },
+      {
+        "id": "brk-2021",
+        "dictScore": 0.008772,
+        "llmScore": 5,
+        "delta": 1.168,
+        "note": "|Δz| = 1.17: dictionary score 0.0088 vs. LLM score 5. The text contains multiple instances of promotion-focused language emphasizing gains and advancement: 'recovery,' 'record earnings,' 'most attractive long-term investment,' and …."
+      }
     ]
   },
   "outcome": {
     "name": "Berkshire Class A 1-year forward log return",
     "note": "Synthetic outcome variable for demonstration purposes; reproducible from CRSP or Yahoo Finance.",
     "values": [
-      { "id": "brk-1977", "outcome":  0.46 },
-      { "id": "brk-1981", "outcome":  0.32 },
-      { "id": "brk-1985", "outcome":  0.49 },
-      { "id": "brk-1989", "outcome":  0.20 },
-      { "id": "brk-1993", "outcome":  0.13 },
-      { "id": "brk-1996", "outcome":  0.34 },
-      { "id": "brk-1999", "outcome": -0.20 },
-      { "id": "brk-2001", "outcome": -0.04 },
-      { "id": "brk-2003", "outcome":  0.04 },
-      { "id": "brk-2005", "outcome":  0.18 },
-      { "id": "brk-2007", "outcome": -0.32 },
-      { "id": "brk-2008", "outcome":  0.02 },
-      { "id": "brk-2010", "outcome": -0.04 },
-      { "id": "brk-2012", "outcome":  0.32 },
-      { "id": "brk-2014", "outcome": -0.13 },
-      { "id": "brk-2016", "outcome":  0.21 },
-      { "id": "brk-2017", "outcome":  0.02 },
-      { "id": "brk-2019", "outcome":  0.02 },
-      { "id": "brk-2021", "outcome":  0.04 },
-      { "id": "brk-2022", "outcome":  0.21 }
+      {
+        "id": "brk-1977",
+        "outcome": 0.46
+      },
+      {
+        "id": "brk-1981",
+        "outcome": 0.32
+      },
+      {
+        "id": "brk-1985",
+        "outcome": 0.49
+      },
+      {
+        "id": "brk-1989",
+        "outcome": 0.2
+      },
+      {
+        "id": "brk-1993",
+        "outcome": 0.13
+      },
+      {
+        "id": "brk-1996",
+        "outcome": 0.34
+      },
+      {
+        "id": "brk-1999",
+        "outcome": -0.2
+      },
+      {
+        "id": "brk-2001",
+        "outcome": -0.04
+      },
+      {
+        "id": "brk-2003",
+        "outcome": 0.04
+      },
+      {
+        "id": "brk-2005",
+        "outcome": 0.18
+      },
+      {
+        "id": "brk-2007",
+        "outcome": -0.32
+      },
+      {
+        "id": "brk-2008",
+        "outcome": 0.02
+      },
+      {
+        "id": "brk-2010",
+        "outcome": -0.04
+      },
+      {
+        "id": "brk-2012",
+        "outcome": 0.32
+      },
+      {
+        "id": "brk-2014",
+        "outcome": -0.13
+      },
+      {
+        "id": "brk-2016",
+        "outcome": 0.21
+      },
+      {
+        "id": "brk-2017",
+        "outcome": 0.02
+      },
+      {
+        "id": "brk-2019",
+        "outcome": 0.02
+      },
+      {
+        "id": "brk-2021",
+        "outcome": 0.04
+      },
+      {
+        "id": "brk-2022",
+        "outcome": 0.21
+      }
     ]
   },
   "regression": {
@@ -127,58 +565,153 @@
       {
         "name": "Outcome ~ Dict",
         "n": 20,
-        "rSquared": 0.117,
-        "adjRSquared": 0.068,
+        "rSquared": 0.003,
+        "adjRSquared": -0.052,
         "coefs": [
-          { "term": "intercept",  "estimate": -0.142, "stdErr": 0.121, "pValue": 0.252 },
-          { "term": "dict_score", "estimate": 24.31,  "stdErr": 15.74, "pValue": 0.139 }
+          {
+            "term": "intercept",
+            "estimate": 0.1112,
+            "stdErr": 0.0496,
+            "pValue": 0.0377
+          },
+          {
+            "term": "dict_score",
+            "estimate": 0.4116,
+            "stdErr": 1.6448,
+            "pValue": 0.8052
+          }
         ]
       },
       {
         "name": "Outcome ~ LLM",
         "n": 20,
-        "rSquared": 0.318,
-        "adjRSquared": 0.280,
+        "rSquared": 0.074,
+        "adjRSquared": 0.022,
         "coefs": [
-          { "term": "intercept",  "estimate": -0.421, "stdErr": 0.151, "pValue": 0.011 },
-          { "term": "llm_score",  "estimate":  0.115, "stdErr": 0.040, "pValue": 0.010 }
+          {
+            "term": "intercept",
+            "estimate": -0.0231,
+            "stdErr": 0.1236,
+            "pValue": 0.8539
+          },
+          {
+            "term": "llm_score",
+            "estimate": 0.042,
+            "stdErr": 0.0352,
+            "pValue": 0.2475
+          }
         ]
       },
       {
         "name": "Outcome ~ Dict + LLM",
         "n": 20,
-        "rSquared": 0.351,
-        "adjRSquared": 0.275,
+        "rSquared": 0.078,
+        "adjRSquared": -0.031,
         "coefs": [
-          { "term": "intercept",  "estimate": -0.394, "stdErr": 0.158, "pValue": 0.022 },
-          { "term": "dict_score", "estimate":  9.81,  "stdErr": 14.42, "pValue": 0.504 },
-          { "term": "llm_score",  "estimate":  0.106, "stdErr": 0.042, "pValue": 0.022 }
+          {
+            "term": "intercept",
+            "estimate": -0.0362,
+            "stdErr": 0.1352,
+            "pValue": 0.7922
+          },
+          {
+            "term": "dict_score",
+            "estimate": -0.5074,
+            "stdErr": 1.8075,
+            "pValue": 0.7823
+          },
+          {
+            "term": "llm_score",
+            "estimate": 0.0469,
+            "stdErr": 0.0401,
+            "pValue": 0.2579
+          }
         ]
       }
     ],
-    "interpretation": "The LLM-scored promotion focus measure carries the bulk of the explanatory power (Δ R² ≈ 0.20 over the dictionary alone). When both are entered jointly, the LLM coefficient remains significant while the dictionary coefficient shrinks toward zero, consistent with the LLM measure capturing construct-relevant variance the dictionary misses (e.g., 'building the business,' 'the next 50 years')."
+    "interpretation": "OLS coefficients computed over n=20 joined per-doc rows. Dictionary-only R² = 0.003; LLM-only R² = 0.074; combined R² = 0.078. The LLM measure adds Δ R² ≈ +0.071 over the dictionary alone. Note that the bundled corpus consists of short excerpts (~110 tokens per letter) rather than full letters, and the outcome variable is an illustrative synthetic series — both choices keep this demo runnable in seconds at trivial cost. Reproduce against full letters and a real outcome panel for inferential conclusions."
   },
   "macro": {
     "sampleSize": 5,
     "signals": [
-      { "signal": "Forward-looking compounding language",                   "signalType": "phrasal",    "rationale": "Letters with high promotion focus repeatedly use multi-decade compounding framing: 'the next 50 years,' 'over a lifetime of investing.'", "suggestedOperationalization": "keyword: compound, compounding, decade, decades, lifetime, long term" },
-      { "signal": "Acquisition-as-advancement framing",                     "signalType": "semantic",   "rationale": "Acquisitions are framed as enabling advancement of Berkshire's earning power rather than defensive moves.", "suggestedOperationalization": "presence flag for sentences mentioning an acquisition adjacent to: opportunity, growth, future, build, expand" },
-      { "signal": "Owner-builder vocabulary",                               "signalType": "lexical",    "rationale": "Words emphasizing ownership and building (build, builder, owner, partner) co-occur with high-promotion years.", "suggestedOperationalization": "keyword: build, builder, owner, owners, partner, partnership" },
-      { "signal": "Aspiration-conditional sentence structure",              "signalType": "syntactic",  "rationale": "Conditional 'if X then Y' sentences where Y is an upside outcome are more frequent in high-promotion letters.", "suggestedOperationalization": "regex over conditional clauses (out of scope for v1)" },
-      { "signal": "Anniversary / milestone framing",                        "signalType": "structural", "rationale": "Round-number anniversary letters (e.g., 25th, 50th) are systematically more promotion-focused than other years.", "suggestedOperationalization": "presence flag for letters whose corpus year matches an anniversary milestone" }
+      {
+        "signal": "Forward-looking compounding language",
+        "signalType": "phrasal",
+        "rationale": "Letters with high promotion focus repeatedly use multi-decade compounding framing: 'the next 50 years,' 'over a lifetime of investing.'",
+        "suggestedOperationalization": "keyword: compound, compounding, decade, decades, lifetime, long term"
+      },
+      {
+        "signal": "Acquisition-as-advancement framing",
+        "signalType": "semantic",
+        "rationale": "Acquisitions are framed as enabling advancement of Berkshire's earning power rather than defensive moves.",
+        "suggestedOperationalization": "presence flag for sentences mentioning an acquisition adjacent to: opportunity, growth, future, build, expand"
+      },
+      {
+        "signal": "Owner-builder vocabulary",
+        "signalType": "lexical",
+        "rationale": "Words emphasizing ownership and building (build, builder, owner, partner) co-occur with high-promotion years.",
+        "suggestedOperationalization": "keyword: build, builder, owner, owners, partner, partnership"
+      },
+      {
+        "signal": "Aspiration-conditional sentence structure",
+        "signalType": "syntactic",
+        "rationale": "Conditional 'if X then Y' sentences where Y is an upside outcome are more frequent in high-promotion letters.",
+        "suggestedOperationalization": "regex over conditional clauses (out of scope for v1)"
+      },
+      {
+        "signal": "Anniversary / milestone framing",
+        "signalType": "structural",
+        "rationale": "Round-number anniversary letters (e.g., 25th, 50th) are systematically more promotion-focused than other years.",
+        "suggestedOperationalization": "presence flag for letters whose corpus year matches an anniversary milestone"
+      }
     ],
     "promotedFeatures": [
-      { "name": "compounding_words",          "kind": "keyword",  "pattern": "compound, compounding, decade, decades, lifetime, long term", "perDocSummary": "mean 4.2 matches/letter; high in 1996, 2014, 2021" },
-      { "name": "owner_builder_words",        "kind": "keyword",  "pattern": "build, builder, owner, owners, partner, partnership",       "perDocSummary": "mean 11.6 matches/letter; high in 1985, 1996, 2014" },
-      { "name": "anniversary_milestone",      "kind": "presence", "pattern": "anniversary, fiftieth, twenty-fifth",                         "perDocSummary": "binary flag; positive for 1989 (25th), 2014 (50th)" }
+      {
+        "name": "compounding_words",
+        "kind": "keyword",
+        "pattern": "compound, compounding, decade, decades, lifetime, long term",
+        "perDocSummary": "mean 4.2 matches/letter; high in 1996, 2014, 2021"
+      },
+      {
+        "name": "owner_builder_words",
+        "kind": "keyword",
+        "pattern": "build, builder, owner, owners, partner, partnership",
+        "perDocSummary": "mean 11.6 matches/letter; high in 1985, 1996, 2014"
+      },
+      {
+        "name": "anniversary_milestone",
+        "kind": "presence",
+        "pattern": "anniversary, fiftieth, twenty-fifth",
+        "perDocSummary": "binary flag; positive for 1989 (25th), 2014 (50th)"
+      }
     ]
   },
   "reflexivity": [
-    { "id": "n1", "createdAt": "2026-04-28T17:18:00Z", "body": "Chose unipolar promotion-focus anchors after JMS reviewer feedback; bipolar promotion/prevention conflation is theoretically inconsistent with Higgins (1997). Prevention focus, if added later, will be a separate construct." },
-    { "id": "n2", "createdAt": "2026-04-28T17:54:00Z", "body": "Used full LMD master dictionary (not the seed subset); see manifest for word-list checksum. Primary measure: (positive − negative) / token count." },
-    { "id": "n3", "createdAt": "2026-04-28T18:11:00Z", "body": "Selected Sonnet 4.5 as the canonical LLM measure after pilot subsample comparison against Opus 4.7. Pearson r between models on the subsample: 0.92, ICC(2,1): 0.91, mean |Δ|: 0.4. Sonnet runs at ~5× lower cost with negligible loss in agreement." },
-    { "id": "n4", "createdAt": "2026-04-28T18:24:00Z", "body": "Largest dict-vs-LLM disagreement is brk-1977: dictionary scores moderate (0.0091) while LLM rates 5/7. Hand-read confirms the LLM is correct — the letter is heavily aspirational in a register the dictionary cannot detect ('building the business'). Kept the LLM score; flagged as evidence the LLM measure adds construct-relevant signal." },
-    { "id": "n5", "createdAt": "2026-04-28T18:33:00Z", "body": "Promoted three macro signals: compounding_words, owner_builder_words, anniversary_milestone. The anniversary feature is a strong-form theory test — explicitly hypothesized that round-number anniversary letters (1989, 2014) are more promotion-focused. This is robustness, not a control." }
+    {
+      "id": "n1",
+      "createdAt": "2026-04-29T20:52:39Z",
+      "body": "Chose unipolar promotion-focus anchors after JMS reviewer feedback; bipolar promotion/prevention conflation is theoretically inconsistent with Higgins (1997). Prevention focus, if added later, will be a separate construct."
+    },
+    {
+      "id": "n2",
+      "createdAt": "2026-04-29T20:52:39Z",
+      "body": "Used the bundled LMD seed dictionary (categories: positive, negative, uncertainty, litigious, strong_modal, weak_modal, constraining). Primary measure: (positive − negative) / token count. The full LMD master dictionary will produce smoother per-doc scores; swap it in via Step 3's dictionary picker."
+    },
+    {
+      "id": "n3",
+      "createdAt": "2026-04-29T20:52:39Z",
+      "body": "Single-model run with Anthropic claude-sonnet-4-5. The live tool's Step 4 supports a second model side-by-side for inter-model agreement (Pearson, ICC(2,1), per-doc disagreements); we keep this snapshot single-model to minimize reviewer-budget consumption."
+    },
+    {
+      "id": "n4",
+      "createdAt": "2026-04-29T20:52:39Z",
+      "body": "Dictionary–LLM agreement is moderate (Pearson r = 0.434, Spearman ρ = 0.602). Top disagreements concentrate where the LLM credits aspirational framing (e.g., long-term ownership language) that the sentiment-counts measure doesn't recognize."
+    },
+    {
+      "id": "n5",
+      "createdAt": "2026-04-29T20:52:39Z",
+      "body": "The bundled corpus consists of short excerpts (≈110 tokens each), so the regression in Step 6 is illustrative rather than confirmatory. Reproduce against full letters and a real CRSP outcome panel for inferential claims."
+    }
   ],
   "manifest": {
     "promptVersion": "construct-scoring@1.0",
@@ -186,8 +719,10 @@
       "llm": "claude-sonnet-4-5 (claude-sonnet-4-5-20250929)",
       "dictionary": "Loughran–McDonald master dictionary (full)"
     },
-    "seeds": { "stratifiedSample": "deterministic by document id sort" },
-    "corpusChecksum": "sha256:snapshot-corpus-checksum-placeholder",
+    "seeds": {
+      "stratifiedSample": "deterministic by document id sort"
+    },
+    "corpusChecksum": "sha256:b7802eefe4a0d92d37402d553ec29a9322968d15d6941f2922c895a968128ae2",
     "promptCheckpoints": [
       "Construct definition + scale + anchors are passed verbatim into every LLM call.",
       "Output schema validated server-side; max two retries on parse failure."
