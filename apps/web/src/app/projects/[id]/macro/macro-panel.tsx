@@ -34,6 +34,8 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
   const [provider, setProvider] = useState<"anthropic" | "openai" | "google">("anthropic");
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("claude-sonnet-4-6");
+  const [models, setModels] = useState<Array<{ id: string; displayName: string }>>([]);
+  const [modelsBusy, setModelsBusy] = useState(false);
   const [outcomeVariable, setOutcomeVariable] = useState("");
   const [sampleSize, setSampleSize] = useState(5);
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -61,6 +63,26 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
     const shuffled = [...docs].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, Math.min(sampleSize, docs.length));
   }, [docs, sampleSize]);
+
+  async function loadModels() {
+    setErr(null);
+    setModelsBusy(true);
+    try {
+      const res = await fetch("/api/providers/models", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider, apiKey }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Failed to list models");
+      setModels(body.models as Array<{ id: string; displayName: string }>);
+      if (body.models?.[0]?.id) setModel(body.models[0].id);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setModelsBusy(false);
+    }
+  }
 
   async function runMacro() {
     if (!docs) return;
@@ -149,21 +171,17 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
             Provider
             <select
               value={provider}
-              onChange={(e) => setProvider(e.target.value as typeof provider)}
+              onChange={(e) => {
+                setProvider(e.target.value as typeof provider);
+                // Clear the dropdown — old model list belonged to old provider.
+                setModels([]);
+              }}
               className="mt-1 w-full rounded border px-2 py-1"
             >
               <option value="anthropic">Anthropic</option>
               <option value="openai">OpenAI</option>
               <option value="google">Google Gemini</option>
             </select>
-          </label>
-          <label className="text-sm">
-            Model
-            <input
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              className="mt-1 w-full rounded border px-2 py-1"
-            />
           </label>
           {reviewerCovers ? (
             <div className="text-sm">
@@ -183,6 +201,37 @@ export function MacroPanel({ projectId, construct }: { projectId: string; constr
               />
             </label>
           )}
+          <div className="text-sm">
+            Model
+            {models.length > 0 ? (
+              <select
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="mt-1 w-full rounded border px-2 py-1"
+              >
+                {models.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.displayName}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="mt-1 w-full rounded border px-2 py-1"
+                placeholder="Click 'Load models' below"
+              />
+            )}
+            <button
+              onClick={loadModels}
+              disabled={modelsBusy}
+              type="button"
+              className="mt-2 rounded border px-3 py-1 text-xs disabled:opacity-60"
+            >
+              {modelsBusy ? "Loading…" : models.length > 0 ? "Refresh models" : "Load models"}
+            </button>
+          </div>
           <label className="text-sm">
             Outcome variable (optional)
             <input
