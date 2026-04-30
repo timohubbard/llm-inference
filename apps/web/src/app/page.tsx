@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
+// Toggle to true to re-show the BYOK self-signup CTAs ("Sign in" in the nav
+// and "Get started" / "Open a project" in the hero). Reviewer + demo
+// entrypoints stay visible regardless. Flip this and redeploy when you want
+// to re-open self-signup to the public.
+const SHOW_SIGNUP_CTAS = false;
+
 const STEPS = [
   { n: 1, title: "Articulate theory", body: "Define constructs, scale anchors, hypotheses; register them." },
   { n: 2, title: "Curate data", body: "Load a corpus and inspect validity (coverage, duplicates, encoding)." },
@@ -18,15 +24,19 @@ export default function LandingPage() {
           <Link href="/" className="font-semibold">LLM Inference Tool</Link>
           <nav className="flex items-center gap-4 text-sm">
             <a href="https://github.com/" className="text-muted-foreground hover:text-foreground">GitHub</a>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="rounded bg-primary px-3 py-1.5 text-primary-foreground">Sign in</button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <Link href="/projects" className="rounded bg-primary px-3 py-1.5 text-primary-foreground">Projects</Link>
-              <UserButton />
-            </SignedIn>
+            {SHOW_SIGNUP_CTAS ? (
+              <>
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="rounded bg-primary px-3 py-1.5 text-primary-foreground">Sign in</button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <Link href="/projects" className="rounded bg-primary px-3 py-1.5 text-primary-foreground">Projects</Link>
+                  <UserButton />
+                </SignedIn>
+              </>
+            ) : null}
           </nav>
         </div>
       </header>
@@ -39,14 +49,18 @@ export default function LandingPage() {
           memory and results are streamed to you as a downloadable bundle.
         </p>
         <div className="mt-6 flex gap-3">
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button className="rounded bg-primary px-4 py-2 text-primary-foreground">Get started</button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <Link href="/projects" className="rounded bg-primary px-4 py-2 text-primary-foreground">Open a project</Link>
-          </SignedIn>
+          {SHOW_SIGNUP_CTAS ? (
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="rounded bg-primary px-4 py-2 text-primary-foreground">Get started</button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <Link href="/projects" className="rounded bg-primary px-4 py-2 text-primary-foreground">Open a project</Link>
+              </SignedIn>
+            </>
+          ) : null}
           <Link href="/reviewer" className="rounded border px-4 py-2">I&apos;m an editor or reviewer</Link>
           <Link href="/demo" className="rounded border px-4 py-2">View completed demo</Link>
         </div>
